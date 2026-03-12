@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ponto Smart</title>
+    <style>
+        :root {
+            --bg: #e0e0e0;
+            --card: #f5f5f5;
+            --accent: #ff6b35;
+            --text-main: #333;
+            --text-sub: #888;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0; padding: 0; color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .container { width: 100%; max-width: 400px; padding: 20px; box-sizing: border-box; }
+
+        /* Header Estilo Smart Home */
+        header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        header h1 { font-size: 28px; margin: 0; font-weight: 700; line-height: 1.1; }
+        header span { display: block; font-size: 16px; color: var(--text-sub); }
+
+        /* Card Principal */
+        .main-card {
+            background: var(--card);
+            border-radius: 30px;
+            padding: 25px;
+            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+            margin-bottom: 30px;
+        }
+
+        .status-badge { 
+            background: var(--accent); color: white; padding: 5px 12px; 
+            border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase;
+        }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .stat-box { 
+            background: #fff; border-radius: 20px; padding: 15px; 
+            display: flex; flex-direction: column; align-items: flex-start;
+        }
+        .stat-box label { font-size: 12px; color: var(--text-sub); margin-bottom: 5px; }
+        .stat-box .value { font-size: 20px; font-weight: bold; }
+
+        /* Lista de Registos (Scroll Area) */
+        .section-title { font-size: 18px; font-weight: bold; margin: 20px 0; display: flex; justify-content: space-between; }
+        
+        .log-item {
+            background: #fff; border-radius: 20px; padding: 15px; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 5px 5px 15px #d1d1d1;
+        }
+        .log-info { display: flex; align-items: center; gap: 15px; }
+        .icon-circle { width: 40px; height: 40px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+        /* Inputs de Detalhe (Aparecem no Scroll) */
+        .details-panel { margin-top: 40px; padding-bottom: 100px; border-top: 1px solid #ccc; pt: 20px; }
+        input[type="time"], input[type="date"], select {
+            width: 100%; padding: 12px; border-radius: 12px; border: none; background: #fff; margin-bottom: 10px; font-size: 16px;
+        }
+
+        .btn-submit {
+            position: fixed; bottom: 20px; width: calc(100% - 40px); max-width: 360px;
+            background: var(--text-main); color: #fff; border: none; padding: 18px;
+            border-radius: 20px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <span>Bom dia,</span>
+            <h1>Registo<br>de Ponto</h1>
+        </div>
+        <div class="icon-circle">⚙️</div>
+    </header>
+
+    <div class="main-card">
+        <span class="status-badge" id="status-label">Em Pausa</span>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <label>Saldo Mensal</label>
+                <div class="value" id="saldo-total">-15.00</div>
+            </div>
+            <div class="stat-box">
+                <label>Extra Hoje</label>
+                <div class="value" id="extra-hoje">0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">Marcações Rápidas <span>ver todas</span></div>
+
+    <div class="log-item" onclick="setNow('entrada')">
+        <div class="log-info">
+            <div class="icon-circle">🌅</div>
+            <div><strong>Entrada</strong><br><small id="val-entrada">--:--</small></div>
+        </div>
+        <div>➡️</div>
+    </div>
+
+    <div class="log-item" onclick="document.getElementById('detalhes').scrollIntoView({behavior: 'smooth'})">
+        <div class="log-info">
+            <div class="icon-circle">🥗</div>
+            <div><strong>Almoço</strong><br><small id="val-almoco">1.0h</small></div>
+        </div>
+        <div>⚙️</div>
+    </div>
+
+    <div class="log-item" onclick="setNow('saida')">
+        <div class="log-info">
+            <div class="icon-circle">🌙</div>
+            <div><strong>Saída</strong><br><small id="val-saida">--:--</small></div>
+        </div>
+        <div>⬅️</div>
+    </div>
+
+    <div class="details-panel" id="detalhes">
+        <h3>Dados Detalhados</h3>
+        <label>Data de Registo</label>
+        <input type="date" id="data-input">
+        
+        <label>Tipo Almoço</label>
+        <select id="select-almoco" onchange="updateUI()">
+            <option value="1">1 hora</option>
+            <option value="1.5">1.5 horas (1h30)</option>
+        </select>
+
+        <label>Foto do Cartão</label>
+        <input type="file" accept="image/*" capture="camera" id="foto-input" style="margin-top:10px">
+    </div>
+
+    <button class="btn-submit" onclick="enviarDados()">Submeter Registo</button>
+</div>
+
+<script>
+    // Inicialização
+    document.getElementById('data-input').valueAsDate = new Date();
+    let horas = { entrada: "09:00", saida: "18:00", almoco: 1 };
+
+    function setNow(tipo) {
+        const agora = new Date();
+        const str = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
+        document.getElementById('val-' + tipo).innerText = str;
+        horas[tipo] = str;
+        updateUI();
+    }
+
+    function toCentesimal(timeStr) {
+        const [h, m] = timeStr.split(':').map(Number);
+        return parseFloat((h + (m / 60)).toFixed(2));
+    }
+
+    function updateUI() {
+        const ent = toCentesimal(horas.entrada);
+        const sai = toCentesimal(horas.saida);
+        const alm = parseFloat(document.getElementById('select-almoco').value);
+        
+        // Regra: Bloco 09:00 - 18:00
+        let extra = Math.max(0, 9.0 - ent) + Math.max(0, sai - 18.0);
+        document.getElementById('extra-hoje').innerText = extra.toFixed(2);
+        document.getElementById('val-almoco').innerText = alm + "h";
+    }
+
+    async function enviarDados() {
+        const scriptURL = "URL_DO_TEU_SCRIPT";
+        const payload = {
+            data: document.getElementById('data-input').value,
+            entrada: toCentesimal(horas.entrada),
+            saida: toCentesimal(horas.saida),
+            almocoDuracao: document.getElementById('select-almoco').value,
+            totalExtraDia: document.getElementById('extra-hoje').innerText
+        };
+
+        alert("A enviar: " + JSON.stringify(payload));
+        // Aqui entra o fetch(scriptURL, ...) quando tiveres o link
+    }
+</script>
+
+</body>
+</html>
