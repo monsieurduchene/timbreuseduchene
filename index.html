@@ -173,14 +173,28 @@
     }
 
     async function enviarDados() {
-        const scriptURL = "https://script.google.com/macros/s/AKfycbwCYDd4_SZPSN6wpQ6_JAgX3GOMJsOwS-G29dwUO7uSdtGQbmiKsxVV4yLZ_hDG6sIz/exec";
-        const payload = {
-            data: document.getElementById('data-input').value,
-            entrada: toCentesimal(horas.entrada),
-            saida: toCentesimal(horas.saida),
-            almocoDuracao: document.getElementById('select-almoco').value,
-            totalExtraDia: document.getElementById('extra-hoje').innerText
-        };
+    const scriptURL = "TEU_URL_AQUI"; // Garante que termina em /exec
+    const dados = {
+        data: document.getElementById('data-input').value,
+        entrada: toCentesimal(horas.entrada),
+        saida: toCentesimal(horas.saida),
+        almocoDuracao: document.getElementById('select-almoco').value,
+        totalExtraDia: document.getElementById('extra-hoje').innerText
+    };
+
+    try {
+        // Mudamos para 'cors' temporariamente para ler o erro
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify(dados)
+        });
+        
+        const texto = await response.text();
+        alert("Resposta do Google: " + texto);
+    } catch (erro) {
+        alert("Erro na ligação: " + erro);
+    }
+}
 
         alert("A enviar: " + JSON.stringify(payload));
         // Aqui entra o fetch(scriptURL, ...) quando tiveres o link
