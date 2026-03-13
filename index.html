@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ponto Pastel Pro</title>
+    <title>Ponto Pastel 2D</title>
     <style>
         :root { 
-            --bg: #fafafa; 
-            --card-ponto: #ffe5d9; /* Pêssego pastel */
-            --card-options: #e2ece9; /* Menta pastel */
-            --card-stats: #f0eff4; /* Lavanda pastel */
-            --btn-foto: #d8e2dc; /* Cinza esverdeado pastel */
-            --btn-submit: #94d2bd; /* Verde sálvia */
+            --bg: #ffffff; 
+            --card-ponto: #ffe5d9; /* Pêssego Pastel */
+            --card-options: #e2ece9; /* Menta Pastel */
+            --card-stats: #f0eff4; /* Lavanda Pastel */
+            --btn-foto: #d8e2dc; 
+            --btn-submit: #94d2bd; 
             --accent: #ff9b85; 
             --blue: #a2d2ff; 
             --text: #4a4a4a;
         }
         
         body { 
-            font-family: -apple-system, sans-serif; 
+            font-family: -apple-system, system-ui, sans-serif; 
             background: var(--bg); 
             margin: 0; 
             padding: 15px; 
@@ -26,11 +26,11 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        header { margin-bottom: 25px; text-align: center; }
-        h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 1px; color: #777; }
-        #sync-status { font-size: 9px; font-weight: bold; color: #aaa; }
+        header { margin-bottom: 25px; text-align: center; padding-top: 10px; }
+        h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 2px; color: #999; text-transform: uppercase; }
+        #sync-status { font-size: 9px; font-weight: bold; color: #ccc; }
 
-        /* ESTILO PASTEL 2D - SEM BORDAS OU SOMBRAS */
+        /* ESTILO PASTEL 2D PURO - SEM SOMBRAS OU BORDAS */
         .card { 
             background: var(--card-options); 
             border-radius: 20px; 
@@ -39,6 +39,7 @@
         }
         
         .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        
         .btn-ponto { 
             background: var(--card-ponto); 
             border-radius: 20px; 
@@ -49,8 +50,17 @@
             align-items: center; 
             justify-content: center;
         }
-        .btn-ponto label { font-size: 10px; color: #8d7b73; font-weight: 800; margin-bottom: 5px; z-index: 1; }
         
+        .btn-ponto label { 
+            font-size: 10px; 
+            color: #8d7b73; 
+            font-weight: 800; 
+            margin-bottom: 5px; 
+            z-index: 1; 
+            pointer-events: none;
+        }
+        
+        /* Input invisível que cobre o botão para ativar o relógio do iOS */
         .time-input { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             border: none; background: transparent; font-size: 26px; font-weight: bold; 
@@ -59,15 +69,23 @@
         }
 
         .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
-        input[type="checkbox"] { width: 22px; height: 22px; filter: hue-rotate(140deg); }
+        
+        /* Checkbox mais discreto */
+        input[type="checkbox"] { 
+            width: 22px; height: 22px; 
+            accent-color: var(--btn-submit);
+            cursor: pointer;
+        }
         
         select { 
             padding: 12px; border-radius: 12px; border: none; 
             background: #ffffff; color: var(--text); font-weight: bold; 
-            width: 100%; margin-top: 10px; outline: none;
+            width: 100%; margin-top: 10px; outline: none; -webkit-appearance: none;
         }
 
+        /* FOTOS */
         .grid-foto { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        
         .btn-foto-split { 
             background: var(--btn-foto); 
             color: #666; 
@@ -80,10 +98,18 @@
             flex-direction: column; 
             align-items: center; 
             gap: 5px; 
+            cursor: pointer;
         }
         
-        #preview-foto { width: 100%; border-radius: 15px; display: none; margin-bottom: 15px; }
+        #preview-foto { 
+            width: 100%; 
+            border-radius: 15px; 
+            display: none; 
+            margin-bottom: 15px; 
+            object-fit: cover;
+        }
 
+        /* SUBMETER */
         .btn-submit { 
             width: 100%; 
             background: var(--btn-submit); 
@@ -91,15 +117,17 @@
             border: none; 
             padding: 22px; 
             border-radius: 20px; 
-            font-size: 18px; 
+            font-size: 16px; 
             font-weight: 800; 
+            letter-spacing: 1px;
             cursor: pointer;
         }
+        .btn-submit:active { background: #82c0ab; }
 
-        /* BARRAS */
+        /* STATUS / BARRAS */
         .progress-label { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: bold; color: #888; }
-        .bar-bg { background: #fff; height: 14px; border-radius: 7px; overflow: hidden; margin-bottom: 12px; }
-        .bar-fill { height: 100%; width: 0%; transition: width 1s; }
+        .bar-bg { background: #ffffff; height: 14px; border-radius: 7px; overflow: hidden; margin-bottom: 12px; }
+        .bar-fill { height: 100%; width: 0%; transition: width 1s ease-out; }
         .fill-normal { background: var(--blue); }
         .fill-acordo { background: var(--accent); }
     </style>
@@ -108,8 +136,8 @@
 
 <div style="max-width:400px; margin:0 auto;">
     <header>
-        <h1>REGISTO</h1>
-        <span id="sync-status">Sincronizando...</span>
+        <h1>Registo de Horas</h1>
+        <span id="sync-status">A ligar...</span>
     </header>
 
     <div class="grid-ponto">
@@ -129,13 +157,13 @@
             <input type="checkbox" id="check-pausa" checked onchange="calc()">
         </div>
         <div class="row">
-            <span style="font-weight: bold;">Sub. Almoço</span>
+            <span style="font-weight: bold;">Subsídio Almoço</span>
             <input type="checkbox" id="check-almoco" onchange="toggleAlmoco()">
         </div>
         <div id="area-almoco" style="display:none;">
             <select id="select-almoco" onchange="calc()">
-                <option value="1">1.0 hora</option>
-                <option value="1.5">1.5 horas</option>
+                <option value="1">Pausa Almoço: 1.0h</option>
+                <option value="1.5">Pausa Almoço: 1.5h</option>
             </select>
         </div>
     </div>
@@ -153,30 +181,32 @@
     <input type="file" id="file-gallery" accept="image/*" style="display:none;" onchange="processarFoto(this)">
     <img id="preview-foto">
 
-    <button class="btn-submit" id="main-btn" onclick="enviar()">SUBMETER</button>
+    <button class="btn-submit" id="main-btn" onclick="enviar()">SUBMETER REGISTO</button>
 
     <div class="card" style="margin-top:25px; background: var(--card-stats);">
-        <div class="progress-label"><span>Mês (174h)</span><span id="txt-normal">0h</span></div>
+        <div class="progress-label"><span>Mensal (174h)</span><span id="txt-normal">0.0h</span></div>
         <div class="bar-bg"><div id="bar-normal" class="bar-fill fill-normal"></div></div>
         
-        <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0h</span></div>
+        <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0.0h</span></div>
         <div class="bar-bg"><div id="bar-acordo" class="bar-fill fill-acordo"></div></div>
         
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; margin-top:5px; color:#777;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:bold; margin-top:5px; color:#999;">
             <span>Dias Almoço:</span>
-            <span id="contagem-almocos" style="color:#6ab09c;">0</span>
+            <span id="contagem-almocos" style="color:#82c0ab;">0</span>
         </div>
     </div>
 </div>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwc1hOHtBYQbygRKN-1XWmlBJUAOyFuCc4sYtqb8b3aygSO3JRoUIebA19i_6mNwmxX/exec"; 
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwvE_rTcVAZEsMUWFAnBQT9o-OhZKobZwhWc9mRk4cGJsTkvS-r5oazGYo5MwxGrzY/exec"; // <-- COLA AQUI O TEU LINK /EXEC
     let acumuladoMes = 0;
     let fotoBase64 = "";
 
     async function carregar() {
+        // Recuperar o que estava escrito no iPhone
         document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "";
         document.getElementById('input-saida').value = localStorage.getItem('p_sai') || "";
+        
         try {
             const res = await fetch(scriptURL);
             const data = await res.json();
@@ -184,7 +214,10 @@
             document.getElementById('contagem-almocos').innerText = data.almocos || 0;
             document.getElementById('sync-status').innerText = "CONECTADO";
             calc();
-        } catch(e) { document.getElementById('sync-status').innerText = "OFFLINE"; calc(); }
+        } catch(e) { 
+            document.getElementById('sync-status').innerText = "MODO OFFLINE"; 
+            calc(); 
+        }
     }
 
     function processarFoto(input) {
@@ -201,9 +234,11 @@
                 canvas.height = img.height * scaleSize;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                // Comprimir para JPEG 70%
                 fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                document.getElementById('preview-foto').src = fotoBase64;
-                document.getElementById('preview-foto').style.display = "block";
+                const p = document.getElementById('preview-foto');
+                p.src = fotoBase64;
+                p.style.display = "block";
             };
             img.src = e.target.result;
         };
@@ -211,12 +246,14 @@
     }
 
     function manualSave(tipo) {
-        localStorage.setItem('p_' + tipo, document.getElementById('input-' + tipo).value);
+        const val = document.getElementById('input-' + tipo).value;
+        localStorage.setItem('p_' + tipo, val);
         calc();
     }
 
     function toggleAlmoco() {
-        document.getElementById('area-almoco').style.display = document.getElementById('check-almoco').checked ? "block" : "none";
+        const isChecked = document.getElementById('check-almoco').checked;
+        document.getElementById('area-almoco').style.display = isChecked ? "block" : "none";
         calc();
     }
 
@@ -229,20 +266,29 @@
     function calc() {
         let ent = toCent(document.getElementById('input-entrada').value);
         let sai = toCent(document.getElementById('input-saida').value);
+        
         let desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
                    (document.getElementById('check-almoco').checked ? parseFloat(document.getElementById('select-almoco').value) : 0);
+        
+        // Se a saída for menor que entrada, o cálculo "hoje" será ajustado no Script
+        // Aqui na UI mostramos apenas se for lógico
         let hoje = (sai > ent) ? (sai - ent - desc) : 0;
         let total = acumuladoMes + hoje;
-        document.getElementById('bar-normal').style.width = Math.min(100, (total/174)*100) + "%";
-        document.getElementById('txt-normal').innerText = Math.min(total, 174).toFixed(1) + "h";
-        let acordo = total > 174 ? Math.min(15, total - 174) : 0;
-        document.getElementById('bar-acordo').style.width = (acordo/15)*100 + "%";
-        document.getElementById('txt-acordo').innerText = acordo.toFixed(1) + "h";
+
+        // Atualizar Barras
+        let normalVal = Math.min(total, 174);
+        document.getElementById('bar-normal').style.width = (normalVal / 174 * 100) + "%";
+        document.getElementById('txt-normal').innerText = normalVal.toFixed(1) + "h";
+        
+        let acordoVal = total > 174 ? Math.min(15, total - 174) : 0;
+        document.getElementById('bar-acordo').style.width = (acordoVal / 15 * 100) + "%";
+        document.getElementById('txt-acordo').innerText = acordoVal.toFixed(1) + "h";
     }
 
     async function enviar() {
         const btn = document.getElementById('main-btn');
-        btn.innerText = "..."; btn.disabled = true;
+        btn.innerText = "A ENVIAR..."; btn.disabled = true;
+
         let desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
                    (document.getElementById('check-almoco').checked ? parseFloat(document.getElementById('select-almoco').value) : 0);
 
@@ -257,10 +303,18 @@
 
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            localStorage.removeItem('p_ent'); localStorage.removeItem('p_sai');
-            alert("Enviado com sucesso!"); location.reload();
-        } catch (e) { alert("Erro ao enviar"); btn.disabled = false; btn.innerText = "SUBMETER"; }
+            // Limpar dados locais
+            localStorage.removeItem('p_ent'); 
+            localStorage.removeItem('p_sai');
+            alert("Registo enviado com sucesso!");
+            location.reload();
+        } catch (e) { 
+            alert("Erro na ligação. Tenta novamente."); 
+            btn.disabled = false; 
+            btn.innerText = "SUBMETER REGISTO"; 
+        }
     }
+
     window.onload = carregar;
 </script>
 </body>
