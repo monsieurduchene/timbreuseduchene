@@ -1,22 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ponto Pro Dashboard</title>
+    <style>
+        :root { --bg: #efefef; --card: #efefef; --shadow: #d1d1d1; --white: #ffffff; --accent: #ff6b35; --blue: #3498db; --green: #2ecc71; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
+        .container { width: 100%; max-width: 414px; margin: 0 auto; }
+        
+        /* Cabeçalho */
+        header { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-start; }
+        header h1 { margin: 0; font-size: 26px; font-weight: 800; line-height: 1.1; }
+        header span { font-size: 12px; color: #888; display: block; margin-bottom: 4px; }
+
+        /* Cards Neumórficos */
+        .card { background: var(--card); border-radius: 25px; padding: 20px; box-shadow: 9px 9px 16px var(--shadow), -9px -9px 16px var(--white); margin-bottom: 20px; }
+        
+        /* Barras de Progresso */
+        .progress-box { margin-bottom: 20px; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; color: #666; }
+        .bar-bg { background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; box-shadow: inset 2px 2px 5px #bbb; }
+        .bar-fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
+        .fill-normal { background: var(--blue); }
+        .fill-acordo { background: var(--accent); }
+
+        .extra-badge { background: #333; color: white; padding: 15px; border-radius: 18px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .extra-badge small { font-size: 10px; opacity: 0.7; letter-spacing: 1px; }
+        .extra-badge big { font-size: 26px; display: block; font-weight: bold; margin-top: 4px; }
+
+        /* Botões de Ponto */
+        .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .btn-ponto { background: var(--card); border-radius: 20px; padding: 15px; text-align: center; box-shadow: 6px 6px 12px var(--shadow), -6px -6px 12px var(--white); cursor: pointer; transition: 0.2s; }
+        .btn-ponto:active { box-shadow: inset 4px 4px 8px var(--shadow); transform: scale(0.98); }
+        .btn-ponto strong { display: block; font-size: 22px; color: var(--accent); margin-top: 5px; }
+
+        /* Opções */
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+        .divider { border-top: 1px solid #ddd; margin: 10px 0; }
+        input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--green); }
+        select { padding: 8px; border-radius: 10px; border: none; background: #ddd; font-size: 14px; }
+
+        .btn-submit { width: 100%; background: var(--green); color: white; border: none; padding: 20px; border-radius: 20px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3); cursor: pointer; margin-top: 10px; }
+        .btn-submit:active { transform: scale(0.99); opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <span id="sync-status">A aguardar...</span>
+            <h1>Controlo<br>Mensal</h1>
+        </div>
+        <div style="font-size: 24px;">📊</div>
+    </header>
+
+    <div class="card">
+        <div class="progress-box">
+            <div class="progress-label"><span>Base (174h)</span><span id="txt-normal">0.00 / 174h</span></div>
+            <div class="bar-bg"><div id="bar-normal" class="bar-fill fill-normal"></div></div>
+        </div>
+        <div class="progress-box">
+            <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0.00 / 15h</span></div>
+            <div class="bar-bg"><div id="bar-acordo" class="bar-fill fill-acordo"></div></div>
+        </div>
+        <div class="extra-badge">
+            <small>EXTRAS REAIS</small>
+            <big id="txt-extra-real">0.00h</big>
+        </div>
+    </div>
+
+    <div class="grid-ponto">
+        <div class="btn-ponto" onclick="setNow('entrada')">Entrada<strong id="disp-entrada">--:--</strong></div>
+        <div class="btn-ponto" onclick="setNow('saida')">Saída<strong id="disp-saida">--:--</strong></div>
+    </div>
+
+    <div class="card">
+        <div class="row">
+            <span style="font-size: 14px; font-weight: 600;">Subsídio Almoço (16 CHF)</span>
+            <input type="checkbox" id="check-subsidio" checked>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <span style="font-size: 14px; font-weight: 600;">Intervalo</span>
+            <select id="select-almoco" onchange="calc()">
+                <option value="1">1.0h</option>
+                <option value="1.5">1.5h</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="btn-submit" id="main-btn" onclick="enviar()">Submeter Registo</button>
+</div>
+
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwRf46PK11qZwjVSuqML0siZRQ0pq9WQwj_JHzyPzJOUD7OhYsHkZlQQF_T6Lyi593w/exec"; // SUBSTITUI PELO TEU URL /exec
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwRf46PK11qZwjVSuqML0siZRQ0pq9WQwj_JHzyPzJOUD7OhYsHkZlQQF_T6Lyi593w/exec"; 
     let acumuladoNoMes = 0; 
     let tempos = { entrada: null, saida: null };
 
-    // FUNÇÃO DE LEITURA AUTOMÁTICA
-    async function carregarDadosReais() {
-        const statusHeader = document.querySelector('header span');
-        statusHeader.innerText = "⏳ A sincronizar com Excel...";
-        
+    async function carregarDados() {
+        const status = document.getElementById('sync-status');
+        status.innerText = "⏳ Sincronizando...";
         try {
             const response = await fetch(scriptURL);
             const data = await response.json();
-            acumuladoNoMes = parseFloat(data.acumulado);
-            statusHeader.innerText = "✅ Sincronizado";
-            calc(); // Atualiza as barras com os dados reais
-        } catch (error) {
-            statusHeader.innerText = "⚠️ Erro na leitura";
-            console.error(error);
+            acumuladoNoMes = parseFloat(data.acumulado || 0);
+            status.innerText = "✅ Sincronizado";
+            calc();
+        } catch (e) {
+            status.innerText = "⚠️ Erro na rede";
+            console.error(e);
         }
     }
 
@@ -54,9 +148,10 @@
     }
 
     async function enviar() {
-        if(!tempos.entrada || !tempos.saida) return alert("Marca os tempos!");
-        const btn = document.querySelector('.btn-submit');
+        if(!tempos.entrada || !tempos.saida) return alert("Marca os tempos primeiro!");
+        const btn = document.getElementById('main-btn');
         btn.innerText = "A guardar...";
+        btn.disabled = true;
 
         const payload = {
             data: new Date().toISOString().split('T')[0],
@@ -66,11 +161,18 @@
             subAlmoco: document.getElementById('check-subsidio').checked ? 16 : 0
         };
 
-        await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        alert("Enviado!");
-        location.reload(); // Recarrega para ler os novos valores do Excel
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("Sucesso!");
+            location.reload();
+        } catch (e) {
+            alert("Erro: " + e);
+            btn.disabled = false;
+            btn.innerText = "Submeter Registo";
+        }
     }
 
-    // Iniciar leitura ao abrir a App
-    window.onload = carregarDadosReais;
+    window.onload = carregarDados;
 </script>
+</body>
+</html>
