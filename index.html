@@ -8,12 +8,23 @@
         :root { --bg: #efefef; --card: #efefef; --shadow: #d1d1d1; --white: #ffffff; --accent: #ff6b35; --blue: #3498db; --green: #2ecc71; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; }
         .card { background: var(--card); border-radius: 25px; padding: 20px; box-shadow: 9px 9px 16px var(--shadow), -9px -9px 16px var(--white); margin-bottom: 20px; }
+        
+        /* Marcação */
         .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .btn-ponto { background: var(--card); border-radius: 22px; padding: 25px 10px; text-align: center; box-shadow: 6px 6px 12px var(--shadow), -6px -6px 12px var(--white); cursor: pointer; border: none; }
         .time-input { border: none; background: transparent; font-size: 26px; font-weight: bold; color: var(--accent); width: 100%; text-align: center; pointer-events: none; }
-        .btn-foto { width: 100%; background: #444; color: white; border: none; padding: 16px; border-radius: 18px; margin-bottom: 15px; font-weight: bold; }
+        
+        /* Botões de Foto Lado a Lado */
+        .grid-foto { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .btn-foto-split { background: #444; color: white; border: none; padding: 14px; border-radius: 15px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .btn-foto-split.gallery { background: #666; }
+        
         #preview-foto { width: 100%; border-radius: 15px; display: none; margin-bottom: 20px; border: 2px solid #fff; }
-        .btn-submit { width: 100%; background: var(--green); color: white; border: none; padding: 22px; border-radius: 22px; font-size: 18px; font-weight: bold; }
+        
+        /* Submeter */
+        .btn-submit { width: 100%; background: var(--green); color: white; border: none; padding: 22px; border-radius: 22px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(46,204,113,0.3); }
+
+        /* Barras no fundo */
         .progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: bold; }
         .bar-bg { background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px; }
         .bar-fill { height: 100%; width: 0%; transition: width 1s; }
@@ -57,13 +68,23 @@
         </div>
     </div>
 
-    <button class="btn-foto" id="btn-foto-ui" onclick="document.getElementById('file-input').click()">📷 Tirar Foto do Cartão</button>
-    <input type="file" id="file-input" accept="image/*" capture="camera" style="display:none;" onchange="processarFoto()">
+    <div class="grid-foto">
+        <button class="btn-foto-split" onclick="document.getElementById('file-camera').click()">
+            <span>📷</span> Câmara
+        </button>
+        <button class="btn-foto-split gallery" onclick="document.getElementById('file-gallery').click()">
+            <span>🖼️</span> Galeria
+        </button>
+    </div>
+
+    <input type="file" id="file-camera" accept="image/*" capture="camera" style="display:none;" onchange="processarFoto(this)">
+    <input type="file" id="file-gallery" accept="image/*" style="display:none;" onchange="processarFoto(this)">
+    
     <img id="preview-foto">
 
     <button class="btn-submit" id="main-btn" onclick="enviar()">Submeter Registo</button>
 
-    <div class="card" style="opacity:0.9;">
+    <div class="card" style="opacity:0.9; margin-top:30px;">
         <div class="progress-label"><span>Base (174h)</span><span id="txt-normal">0/174h</span></div>
         <div class="bar-bg"><div id="bar-normal" class="bar-fill fill-normal"></div></div>
         <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0/15h</span></div>
@@ -76,7 +97,7 @@
 </div>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwc1hOHtBYQbygRKN-1XWmlBJUAOyFuCc4sYtqb8b3aygSO3JRoUIebA19i_6mNwmxX/exec"; // <--- COLA AQUI O TEU LINK EXEC
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwc1hOHtBYQbygRKN-1XWmlBJUAOyFuCc4sYtqb8b3aygSO3JRoUIebA19i_6mNwmxX/exec"; 
     let acumuladoMes = 0;
     let fotoBase64 = "";
 
@@ -93,27 +114,24 @@
         } catch(e) { document.getElementById('sync-status').innerText = "⚠️ Offline"; calc(); }
     }
 
-    // FUNÇÃO QUE COMPRIME A FOTO ANTES DE ENVIAR
-    function processarFoto() {
-        const file = document.getElementById('file-input').files[0];
+    function processarFoto(input) {
+        const file = input.files[0];
+        if(!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800; // Reduz a largura para 800px (suficiente para ler o cartão)
+                const MAX_WIDTH = 800;
                 const scaleSize = MAX_WIDTH / img.width;
                 canvas.width = MAX_WIDTH;
                 canvas.height = img.height * scaleSize;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                // Transforma em JPEG com 70% de qualidade para ser leve
                 fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                document.getElementById('preview-foto').src = fotoBase64;
-                document.getElementById('preview-foto').style.display = "block";
-                document.getElementById('btn-foto-ui').innerText = "✅ Foto Pronta";
-                document.getElementById('btn-foto-ui').style.background = "#2ecc71";
+                const p = document.getElementById('preview-foto');
+                p.src = fotoBase64;
+                p.style.display = "block";
             };
             img.src = e.target.result;
         };
