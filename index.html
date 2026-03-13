@@ -3,123 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ponto Pro Dashboard</title>
+    <title>Ponto Smart Pro</title>
     <style>
         :root { --bg: #efefef; --card: #efefef; --shadow: #d1d1d1; --white: #ffffff; --accent: #ff6b35; --blue: #3498db; --green: #2ecc71; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        .container { width: 100%; max-width: 414px; margin: 0 auto; }
-        
-        /* Cabeçalho */
-        header { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-start; }
-        header h1 { margin: 0; font-size: 26px; font-weight: 800; line-height: 1.1; }
-        header span { font-size: 12px; color: #888; display: block; margin-bottom: 4px; }
-
-        /* Cards Neumórficos */
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; }
         .card { background: var(--card); border-radius: 25px; padding: 20px; box-shadow: 9px 9px 16px var(--shadow), -9px -9px 16px var(--white); margin-bottom: 20px; }
         
-        /* Barras de Progresso */
-        .progress-box { margin-bottom: 20px; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; color: #666; }
-        .bar-bg { background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; box-shadow: inset 2px 2px 5px #bbb; }
+        /* Progress Bars */
+        .progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: bold; color: #666; }
+        .bar-bg { background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; box-shadow: inset 2px 2px 5px #bbb; margin-bottom: 15px; }
         .bar-fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
         .fill-normal { background: var(--blue); }
         .fill-acordo { background: var(--accent); }
 
-        .extra-badge { background: #333; color: white; padding: 15px; border-radius: 18px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .extra-badge small { font-size: 10px; opacity: 0.7; letter-spacing: 1px; }
-        .extra-badge big { font-size: 26px; display: block; font-weight: bold; margin-top: 4px; }
-
-        /* Botões de Ponto */
+        /* Inputs Manuais */
         .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .btn-ponto { background: var(--card); border-radius: 20px; padding: 15px; text-align: center; box-shadow: 6px 6px 12px var(--shadow), -6px -6px 12px var(--white); cursor: pointer; transition: 0.2s; }
-        .btn-ponto:active { box-shadow: inset 4px 4px 8px var(--shadow); transform: scale(0.98); }
-        .btn-ponto strong { display: block; font-size: 22px; color: var(--accent); margin-top: 5px; }
+        .btn-ponto { background: var(--card); border-radius: 20px; padding: 12px; text-align: center; box-shadow: 6px 6px 12px var(--shadow), -6px -6px 12px var(--white); position: relative; }
+        .btn-ponto label { font-size: 12px; color: #888; display: block; margin-bottom: 5px; }
+        input[type="time"] { border: none; background: transparent; font-size: 20px; font-weight: bold; color: var(--accent); width: 100%; text-align: center; font-family: inherit; }
+        .auto-clock { position: absolute; top: 5px; right: 10px; font-size: 14px; cursor: pointer; }
 
-        /* Opções */
+        /* Switches e Opções */
         .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
-        .divider { border-top: 1px solid #ddd; margin: 10px 0; }
-        input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--green); }
-        select { padding: 8px; border-radius: 10px; border: none; background: #ddd; font-size: 14px; }
+        .divider { border-top: 1px solid #ddd; margin: 8px 0; }
+        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--green); }
+        select { padding: 5px; border-radius: 8px; border: none; background: #ddd; }
 
-        .btn-submit { width: 100%; background: var(--green); color: white; border: none; padding: 20px; border-radius: 20px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3); cursor: pointer; margin-top: 10px; }
-        .btn-submit:active { transform: scale(0.99); opacity: 0.9; }
+        .btn-submit { width: 100%; background: var(--green); color: white; border: none; padding: 18px; border-radius: 20px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3); margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <div>
-            <span id="sync-status">A aguardar...</span>
-            <h1>Controlo<br>Mensal</h1>
-        </div>
-        <div style="font-size: 24px;">📊</div>
+    <header style="padding-left: 10px; margin-bottom: 20px;">
+        <span id="sync-status" style="font-size: 12px; color: #888;">A carregar...</span>
+        <h1 style="margin:0; font-size: 24px;">Meu Registo</h1>
     </header>
 
     <div class="card">
-        <div class="progress-box">
-            <div class="progress-label"><span>Base (174h)</span><span id="txt-normal">0.00 / 174h</span></div>
-            <div class="bar-bg"><div id="bar-normal" class="bar-fill fill-normal"></div></div>
-        </div>
-        <div class="progress-box">
-            <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0.00 / 15h</span></div>
-            <div class="bar-bg"><div id="bar-acordo" class="bar-fill fill-acordo"></div></div>
-        </div>
-        <div class="extra-badge">
-            <small>EXTRAS REAIS</small>
-            <big id="txt-extra-real">0.00h</big>
+        <div class="progress-label"><span>Base (174h)</span><span id="txt-normal">0 / 174h</span></div>
+        <div class="bar-bg"><div id="bar-normal" class="bar-fill fill-normal"></div></div>
+        <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0 / 15h</span></div>
+        <div class="bar-bg"><div id="bar-acordo" class="bar-fill fill-acordo"></div></div>
+        <div style="text-align:center; background:#333; color:#fff; padding:10px; border-radius:15px;">
+            <small style="font-size:10px; opacity:0.7;">EXTRA REAL</small>
+            <div id="txt-extra-real" style="font-size:20px; font-weight:bold;">0.00h</div>
         </div>
     </div>
 
     <div class="grid-ponto">
-        <div class="btn-ponto" onclick="setNow('entrada')">Entrada<strong id="disp-entrada">--:--</strong></div>
-        <div class="btn-ponto" onclick="setNow('saida')">Saída<strong id="disp-saida">--:--</strong></div>
+        <div class="btn-ponto">
+            <span class="auto-clock" onclick="setNow('entrada')">🕒</span>
+            <label>Entrada</label>
+            <input type="time" id="input-entrada" onchange="saveManual('entrada')">
+        </div>
+        <div class="btn-ponto">
+            <span class="auto-clock" onclick="setNow('saida')">🕒</span>
+            <label>Saída</label>
+            <input type="time" id="input-saida" onchange="saveManual('saida')">
+        </div>
     </div>
 
     <div class="card">
         <div class="row">
-            <span style="font-size: 14px; font-weight: 600;">Subsídio Almoço (16 CHF)</span>
-            <input type="checkbox" id="check-subsidio" checked>
+            <span>Pausa Fixa (30 min)</span>
+            <input type="checkbox" id="check-pausa" checked onchange="saveConfig(); calc();">
         </div>
         <div class="divider"></div>
         <div class="row">
-            <span style="font-size: 14px; font-weight: 600;">Intervalo</span>
-            <select id="select-almoco" onchange="calc()">
-                <option value="1">1.0h</option>
-                <option value="1.5">1.5h</option>
+            <span>Pausa Almoço</span>
+            <input type="checkbox" id="check-almoco" onchange="saveConfig(); calc();">
+        </div>
+        <div id="area-almoco" style="display:none; margin-top:10px;">
+            <select id="select-almoco" onchange="saveConfig(); calc();" style="width:100%;">
+                <option value="1">1.0 hora</option>
+                <option value="1.5">1.5 horas</option>
             </select>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <span>Subsídio (16 CHF)</span>
+            <input type="checkbox" id="check-subsidio" checked onchange="saveConfig();">
         </div>
     </div>
 
     <button class="btn-submit" id="main-btn" onclick="enviar()">Submeter Registo</button>
-</div>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwRf46PK11qZwjVSuqML0siZRQ0pq9WQwj_JHzyPzJOUD7OhYsHkZlQQF_T6Lyi593w/exec"; 
-    let acumuladoNoMes = 0; 
-    let tempos = { entrada: null, saida: null };
+    const scriptURL = "TEU_URL_AQUI"; 
+    let acumuladoNoMes = 0;
 
-    async function carregarDados() {
-        const status = document.getElementById('sync-status');
-        status.innerText = "⏳ Sincronizando...";
+    async function carregar() {
+        // Recuperar valores do iPhone
+        document.getElementById('input-entrada').value = localStorage.getItem('ponto_entrada') || "";
+        document.getElementById('input-saida').value = localStorage.getItem('ponto_saida') || "";
+        document.getElementById('check-pausa').checked = localStorage.getItem('cfg_pausa') !== "false"; // Default true
+        document.getElementById('check-almoco').checked = localStorage.getItem('cfg_almoco') === "true"; // Default false
+        document.getElementById('check-subsidio').checked = localStorage.getItem('cfg_subsidio') !== "false";
+        
+        toggleAlmoco();
+
         try {
-            const response = await fetch(scriptURL);
-            const data = await response.json();
+            const res = await fetch(scriptURL);
+            const data = await res.json();
             acumuladoNoMes = parseFloat(data.acumulado || 0);
-            status.innerText = "✅ Sincronizado";
+            document.getElementById('sync-status').innerText = "✅ Sincronizado";
             calc();
-        } catch (e) {
-            status.innerText = "⚠️ Erro na rede";
-            console.error(e);
-        }
+        } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Modo Offline"; }
     }
 
-    function setNow(t) {
+    function setNow(id) {
         let n = new Date();
         let s = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
-        tempos[t] = s;
-        document.getElementById('disp-' + t).innerText = s;
+        document.getElementById('input-' + id).value = s;
+        saveManual(id);
+    }
+
+    function saveManual(id) {
+        localStorage.setItem('ponto_' + id, document.getElementById('input-' + id).value);
         calc();
+    }
+
+    function saveConfig() {
+        localStorage.setItem('cfg_pausa', document.getElementById('check-pausa').checked);
+        localStorage.setItem('cfg_almoco', document.getElementById('check-almoco').checked);
+        localStorage.setItem('cfg_subsidio', document.getElementById('check-subsidio').checked);
+        toggleAlmoco();
+    }
+
+    function toggleAlmoco() {
+        document.getElementById('area-almoco').style.display = document.getElementById('check-almoco').checked ? "block" : "none";
     }
 
     function toCent(ts) {
@@ -129,11 +141,16 @@
     }
 
     function calc() {
-        let ent = toCent(tempos.entrada);
-        let sai = toCent(tempos.saida);
-        let alm = parseFloat(document.getElementById('select-almoco').value);
+        let ent = toCent(document.getElementById('input-entrada').value);
+        let sai = toCent(document.getElementById('input-saida').value);
         
-        let hoje = (sai > ent) ? (sai - ent - alm) : 0;
+        let desconto = 0;
+        if(document.getElementById('check-pausa').checked) desconto += 0.5;
+        if(document.getElementById('check-almoco').checked) {
+            desconto += parseFloat(document.getElementById('select-almoco').value);
+        }
+
+        let hoje = (sai > ent) ? Math.max(0, sai - ent - desconto) : 0;
         let total = acumuladoNoMes + hoje;
 
         let normais = Math.min(total, 174);
@@ -148,31 +165,35 @@
     }
 
     async function enviar() {
-        if(!tempos.entrada || !tempos.saida) return alert("Marca os tempos primeiro!");
+        const ent = document.getElementById('input-entrada').value;
+        const sai = document.getElementById('input-saida').value;
+        if(!ent || !sai) return alert("Faltam marcações!");
+
         const btn = document.getElementById('main-btn');
-        btn.innerText = "A guardar...";
-        btn.disabled = true;
+        btn.innerText = "A guardar..."; btn.disabled = true;
+
+        let totalPausas = 0;
+        if(document.getElementById('check-pausa').checked) totalPausas += 0.5;
+        if(document.getElementById('check-almoco').checked) totalPausas += parseFloat(document.getElementById('select-almoco').value);
 
         const payload = {
             data: new Date().toISOString().split('T')[0],
-            entrada: toCent(tempos.entrada),
-            saida: toCent(tempos.saida),
-            almocoDuracao: document.getElementById('select-almoco').value,
+            entrada: toCent(ent),
+            saida: toCent(sai),
+            almocoDuracao: totalPausas, // Agora envia a soma de todas as pausas
             subAlmoco: document.getElementById('check-subsidio').checked ? 16 : 0
         };
 
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            localStorage.removeItem('ponto_entrada');
+            localStorage.removeItem('ponto_saida');
             alert("Sucesso!");
             location.reload();
-        } catch (e) {
-            alert("Erro: " + e);
-            btn.disabled = false;
-            btn.innerText = "Submeter Registo";
-        }
+        } catch (e) { alert("Erro"); btn.disabled = false; }
     }
 
-    window.onload = carregarDados;
+    window.onload = carregar;
 </script>
 </body>
 </html>
