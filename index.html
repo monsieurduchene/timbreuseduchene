@@ -30,7 +30,7 @@
         .grid-small { grid-template-columns: 1fr 1fr; }
         .grid-action { grid-template-columns: 1fr 4fr; align-items: stretch; }
 
-        .btn-card { border-radius: 20px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; position: relative; transition: all 0.3s ease; }
+        .btn-card { border-radius: 20px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; position: relative; transition: all 0.2s ease; }
         .btn-card.time { background: var(--card-ponto); padding: 10px; box-sizing: border-box; }
         .btn-card.time i { color: var(--icon-active); opacity: 1; margin-bottom: 5px; }
 
@@ -49,17 +49,14 @@
         
         #preview-foto { width: 100%; border-radius: 20px; display: none; margin-bottom: var(--gap-main); object-fit: cover; }
 
-        /* STATS */
         .stats-container { background: var(--card-stats); border-radius: 20px; padding: 20px; margin-bottom: 30px; }
         .progress-label { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: 800; color: #9e9e9e; text-transform: uppercase; }
         .bar-bg { background: var(--bar-bg); height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 15px; }
         .bar-fill { height: 100%; width: 0%; transition: width 0.5s ease; }
 
-        /* MEAL TOGGLE LÓGICA */
         .meal-opt { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--text-secondary); background: rgba(0,0,0,0.06); cursor: pointer; }
         .meal-opt.active { background: var(--icon-active); color: #ffffff; }
 
-        /* HISTÓRICO */
         .history-section { margin-top: 10px; text-align: center; }
         .history-title { font-family: 'Lexend Giga', sans-serif; font-size: 14px; margin-bottom: 15px; display: block; width: 100%; }
         .select-mes { 
@@ -147,8 +144,7 @@
     </div>
 
 <script>
-    // LINHA 127: COLA O TEU URL ABAIXO
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyQ2hYEAE88r-hBx8k9lDUdLC1vwUPlpy1FB68PV1chgk_48kDphXMV6a4lEAWHhhs1/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxFW9QGOu2UkqsF7CocXamPXb8lU4ismxMe84b10qCvFhnNk3QtUmxzHPRPGKFV8Uxb/exec";
     
     let acumuladoMes = 0; let totalAlmocos = 0; let mealDuration = 1.5; let fotoBase64 = "";
 
@@ -177,7 +173,12 @@
         const cb = document.getElementById('check-almoco');
         const card = document.getElementById('card-almoco');
         cb.checked = !cb.checked;
-        cb.checked ? card.classList.replace('inactive', 'active') : card.classList.replace('active', 'inactive');
+        if (cb.checked) {
+            card.classList.replace('inactive', 'active');
+            setMealTime(1); // Seleciona 1H automaticamente ao ativar
+        } else {
+            card.classList.replace('active', 'inactive');
+        }
         calc();
     }
 
@@ -216,19 +217,16 @@
         let hoje = (sai > ent) ? Math.max(0, sai - ent - totalDescontos) : 0;
         let totalGeral = acumuladoMes + hoje;
         
-        // Base 174
         let base = Math.min(totalGeral, 174);
         document.getElementById('bar-base').style.width = (base/174)*100 + "%";
         document.getElementById('bar-base').style.backgroundColor = totalGeral >= 174 ? "var(--color-done)" : "var(--color-pending)";
         document.getElementById('txt-base').innerText = formatTime(base);
 
-        // Extra 15
         let extra = totalGeral > 174 ? Math.min(15, totalGeral - 174) : 0;
         document.getElementById('bar-15').style.width = (extra/15)*100 + "%";
         document.getElementById('bar-15').style.backgroundColor = totalGeral >= 189 ? "var(--color-done)" : "var(--color-pending)";
         document.getElementById('txt-15').innerText = formatTime(extra);
 
-        // Almoços (Dinner)
         let isTodayAlmoco = document.getElementById('check-almoco').checked ? 1 : 0;
         document.getElementById('txt-dinner').innerText = totalAlmocos + isTodayAlmoco;
         document.getElementById('bar-dinner').style.width = Math.min(100, ((totalAlmocos + isTodayAlmoco)/22)*100) + "%";
@@ -280,10 +278,10 @@
                      (document.getElementById('check-almoco').checked ? mealDuration : 0);
         const payload = {
             data: new Date().toISOString().split('T')[0],
-            entrada: toCent(document.getElementById('input-entrada').value),
-            saida: toCent(document.getElementById('input-saida').value),
+            entrada: document.getElementById('input-entrada').value,
+            saida: document.getElementById('input-saida').value,
             almocoDuracao: desc,
-            subAlmoco: document.getElementById('check-almoco').checked ? 16 : 0,
+            subAlmoco: document.getElementById('check-almoco').checked ? 1 : 0,
             foto: fotoBase64
         };
         try {
