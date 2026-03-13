@@ -22,7 +22,6 @@
         header { background: var(--header-bg); color: var(--header-text); padding: 50px 15px; margin-bottom: var(--gap-main); text-align: center; }
         .header-title { font-family: 'Lexend Giga', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -1.5px; text-transform: uppercase; line-height: 1; }
         
-        /* Ajuste do Sync Status */
         #sync-status { display: block; font-size: 10px; font-weight: 900; margin-top: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-secondary); transition: color 0.3s ease; }
 
         .main-container { max-width: 400px; margin: 0 auto; padding: 0 15px; box-sizing: border-box; padding-bottom: 60px; }
@@ -37,7 +36,6 @@
         .btn-card.time i { color: var(--icon-active); opacity: 1; margin-bottom: 5px; }
 
         .time-input { border: none; background: transparent; font-size: 16px; font-weight: 800; color: var(--text); font-family: inherit; width: 100%; text-align: center; display: flex; justify-content: center; appearance: none; -webkit-appearance: none; }
-        .time-input::-webkit-date-and-time-value { text-align: center; display: flex; justify-content: center; width: 100%; }
 
         .btn-card.toggle { background: var(--card-toggle); cursor: pointer; }
         .btn-card i { font-size: 24px; color: var(--text-secondary); opacity: 0.7; pointer-events: none; }
@@ -146,7 +144,7 @@
     </div>
 
 <script>
-    // LINHA 127: COLA AQUI O TEU URL DO SCRIPT
+    // LINHA 127: COLA O TEU URL ENTRE AS ASPAS ABAIXO
     const scriptURL = "https://script.google.com/macros/s/AKfycbyf_wJ027tQQRw32y0QHY7qE9qTC6ruqBDr7LHqcr_tM8lFYBu_Z-lqmtvZHSlvStpR/exec";
     
     let acumuladoMes = 0; let totalAlmocos = 0; let mealDuration = 1.5; let fotoBase64 = "";
@@ -157,16 +155,17 @@
         const statusEl = document.getElementById('sync-status');
         
         try {
-            const res = await fetch(scriptURL);
+            // Alteração para modo 'cors' para forçar a sincronização
+            const res = await fetch(scriptURL, { mode: 'cors' });
             const data = await res.json();
             acumuladoMes = parseFloat(data.acumulado || 0);
             totalAlmocos = parseInt(data.almocos || 0);
             statusEl.innerText = "SINCRO OK";
-            statusEl.style.color = "var(--color-done)"; // Fica verde
+            statusEl.style.color = "var(--color-done)";
             calc();
         } catch(e) { 
             statusEl.innerText = "OFFLINE"; 
-            statusEl.style.color = "var(--color-pending)"; // Fica vermelho em erro
+            statusEl.style.color = "var(--color-pending)";
             calc(); 
         }
     }
@@ -185,7 +184,7 @@
         cb.checked = !cb.checked;
         if (cb.checked) {
             card.classList.replace('inactive', 'active');
-            setMealTime(1); // Seleciona 1H automaticamente ao ativar
+            setMealTime(1);
         } else {
             card.classList.replace('active', 'inactive');
         }
@@ -248,10 +247,8 @@
         if(!mes) { lista.innerHTML = ""; return; }
         lista.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:11px;">A CARREGAR...</div>';
         try {
-            const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`);
+            const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`, { mode: 'cors' });
             const logs = await res.json();
-            
-            // Corrige se no array não existirem horas extra (evita NaNh visuais gerados pelo NaN do Google Sheets antigo)
             lista.innerHTML = logs.length ? logs.map(log => `
                 <div class="history-item">
                     <span>${log.data}</span>
@@ -287,4 +284,24 @@
         const btn = document.getElementById('main-btn');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
         const desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
-                     (document.getElementById('check-almoco').checked ? mealDuration :
+                     (document.getElementById('check-almoco').checked ? mealDuration : 0);
+        
+        const payload = {
+            data: new Date().toISOString().split('T')[0],
+            entrada: toCent(document.getElementById('input-entrada').value), 
+            saida: toCent(document.getElementById('input-saida').value),
+            almocoDuracao: desc,
+            subAlmoco: document.getElementById('check-almoco').checked ? 1 : 0,
+            foto: fotoBase64
+        };
+        
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            localStorage.removeItem('p_ent'); localStorage.removeItem('p_sai');
+            alert("Sucesso!"); location.reload();
+        } catch (e) { alert("Erro ao enviar"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
+    }
+    window.onload = carregar;
+</script>
+</body>
+</html>
