@@ -3,30 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ponto Smart Pro</title>
+    <title>Ponto Pastel Pro</title>
     <style>
-        :root { --bg: #efefef; --card: #efefef; --shadow: #d1d1d1; --white: #ffffff; --accent: #ff6b35; --blue: #3498db; --green: #2ecc71; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; }
-        .card { background: var(--card); border-radius: 25px; padding: 20px; box-shadow: 9px 9px 16px var(--shadow), -9px -9px 16px var(--white); margin-bottom: 20px; }
+        :root { 
+            --bg: #fafafa; 
+            --card-ponto: #ffe5d9; /* Pêssego pastel */
+            --card-options: #e2ece9; /* Menta pastel */
+            --card-stats: #f0eff4; /* Lavanda pastel */
+            --btn-foto: #d8e2dc; /* Cinza esverdeado pastel */
+            --btn-submit: #94d2bd; /* Verde sálvia */
+            --accent: #ff9b85; 
+            --blue: #a2d2ff; 
+            --text: #4a4a4a;
+        }
         
-        /* Marcação */
-        .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .btn-ponto { background: var(--card); border-radius: 22px; padding: 25px 10px; text-align: center; box-shadow: 6px 6px 12px var(--shadow), -6px -6px 12px var(--white); cursor: pointer; border: none; }
-        .time-input { border: none; background: transparent; font-size: 26px; font-weight: bold; color: var(--accent); width: 100%; text-align: center; pointer-events: none; }
+        body { 
+            font-family: -apple-system, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 15px; 
+            color: var(--text); 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
-        /* Botões de Foto Lado a Lado */
-        .grid-foto { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .btn-foto-split { background: #444; color: white; border: none; padding: 14px; border-radius: 15px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .btn-foto-split.gallery { background: #666; }
-        
-        #preview-foto { width: 100%; border-radius: 15px; display: none; margin-bottom: 20px; border: 2px solid #fff; }
-        
-        /* Submeter */
-        .btn-submit { width: 100%; background: var(--green); color: white; border: none; padding: 22px; border-radius: 22px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(46,204,113,0.3); }
+        header { margin-bottom: 25px; text-align: center; }
+        h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 1px; color: #777; }
+        #sync-status { font-size: 9px; font-weight: bold; color: #aaa; }
 
-        /* Barras no fundo */
-        .progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: bold; }
-        .bar-bg { background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px; }
+        /* ESTILO PASTEL 2D - SEM BORDAS OU SOMBRAS */
+        .card { 
+            background: var(--card-options); 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+        }
+        
+        .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .btn-ponto { 
+            background: var(--card-ponto); 
+            border-radius: 20px; 
+            height: 100px;
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .btn-ponto label { font-size: 10px; color: #8d7b73; font-weight: 800; margin-bottom: 5px; z-index: 1; }
+        
+        .time-input { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border: none; background: transparent; font-size: 26px; font-weight: bold; 
+            color: #6d5952; text-align: center; font-family: inherit;
+            padding-top: 20px; box-sizing: border-box; outline: none; z-index: 2;
+        }
+
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+        input[type="checkbox"] { width: 22px; height: 22px; filter: hue-rotate(140deg); }
+        
+        select { 
+            padding: 12px; border-radius: 12px; border: none; 
+            background: #ffffff; color: var(--text); font-weight: bold; 
+            width: 100%; margin-top: 10px; outline: none;
+        }
+
+        .grid-foto { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .btn-foto-split { 
+            background: var(--btn-foto); 
+            color: #666; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 15px; 
+            font-weight: bold; 
+            font-size: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 5px; 
+        }
+        
+        #preview-foto { width: 100%; border-radius: 15px; display: none; margin-bottom: 15px; }
+
+        .btn-submit { 
+            width: 100%; 
+            background: var(--btn-submit); 
+            color: #466b5e; 
+            border: none; 
+            padding: 22px; 
+            border-radius: 20px; 
+            font-size: 18px; 
+            font-weight: 800; 
+            cursor: pointer;
+        }
+
+        /* BARRAS */
+        .progress-label { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: bold; color: #888; }
+        .bar-bg { background: #fff; height: 14px; border-radius: 7px; overflow: hidden; margin-bottom: 12px; }
         .bar-fill { height: 100%; width: 0%; transition: width 1s; }
         .fill-normal { background: var(--blue); }
         .fill-acordo { background: var(--accent); }
@@ -35,33 +107,33 @@
 <body>
 
 <div style="max-width:400px; margin:0 auto;">
-    <header style="margin-bottom:20px;">
-        <span id="sync-status" style="font-size:10px; color:#888;">Sincronizando...</span>
-        <h1 style="margin:0;">Meu Registo</h1>
+    <header>
+        <h1>REGISTO</h1>
+        <span id="sync-status">Sincronizando...</span>
     </header>
 
     <div class="grid-ponto">
-        <div class="btn-ponto" onclick="document.getElementById('input-entrada').showPicker()">
-            <label style="font-size:11px; color:#999; font-weight:bold; display:block;">ENTRADA</label>
+        <div class="btn-ponto">
+            <label>ENTRADA</label>
             <input type="time" id="input-entrada" class="time-input" onchange="manualSave('ent')">
         </div>
-        <div class="btn-ponto" onclick="document.getElementById('input-saida').showPicker()">
-            <label style="font-size:11px; color:#999; font-weight:bold; display:block;">SAÍDA</label>
+        <div class="btn-ponto">
+            <label>SAÍDA</label>
             <input type="time" id="input-saida" class="time-input" onchange="manualSave('sai')">
         </div>
     </div>
 
     <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span>Pausa (30 min)</span>
+        <div class="row">
+            <span style="font-weight: bold;">Pausa Fixa (30min)</span>
             <input type="checkbox" id="check-pausa" checked onchange="calc()">
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
-            <span>Almoço (+Subsidio)</span>
+        <div class="row">
+            <span style="font-weight: bold;">Sub. Almoço</span>
             <input type="checkbox" id="check-almoco" onchange="toggleAlmoco()">
         </div>
-        <div id="area-almoco" style="display:none; margin-top:10px;">
-            <select id="select-almoco" onchange="calc()" style="width:100%; padding:10px; border-radius:10px;">
+        <div id="area-almoco" style="display:none;">
+            <select id="select-almoco" onchange="calc()">
                 <option value="1">1.0 hora</option>
                 <option value="1.5">1.5 horas</option>
             </select>
@@ -70,28 +142,29 @@
 
     <div class="grid-foto">
         <button class="btn-foto-split" onclick="document.getElementById('file-camera').click()">
-            <span>📷</span> Câmara
+            <span>📷</span> CÂMARA
         </button>
-        <button class="btn-foto-split gallery" onclick="document.getElementById('file-gallery').click()">
-            <span>🖼️</span> Galeria
+        <button class="btn-foto-split" onclick="document.getElementById('file-gallery').click()">
+            <span>🖼️</span> GALERIA
         </button>
     </div>
 
     <input type="file" id="file-camera" accept="image/*" capture="camera" style="display:none;" onchange="processarFoto(this)">
     <input type="file" id="file-gallery" accept="image/*" style="display:none;" onchange="processarFoto(this)">
-    
     <img id="preview-foto">
 
-    <button class="btn-submit" id="main-btn" onclick="enviar()">Submeter Registo</button>
+    <button class="btn-submit" id="main-btn" onclick="enviar()">SUBMETER</button>
 
-    <div class="card" style="opacity:0.9; margin-top:30px;">
-        <div class="progress-label"><span>Base (174h)</span><span id="txt-normal">0/174h</span></div>
+    <div class="card" style="margin-top:25px; background: var(--card-stats);">
+        <div class="progress-label"><span>Mês (174h)</span><span id="txt-normal">0h</span></div>
         <div class="bar-bg"><div id="bar-normal" class="bar-fill fill-normal"></div></div>
-        <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0/15h</span></div>
+        
+        <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0h</span></div>
         <div class="bar-bg"><div id="bar-acordo" class="bar-fill fill-acordo"></div></div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:bold;">
-            <span>Dias com Almoço:</span>
-            <span id="contagem-almocos" style="color:var(--green);">0</span>
+        
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold; margin-top:5px; color:#777;">
+            <span>Dias Almoço:</span>
+            <span id="contagem-almocos" style="color:#6ab09c;">0</span>
         </div>
     </div>
 </div>
@@ -109,9 +182,9 @@
             const data = await res.json();
             acumuladoMes = parseFloat(data.acumulado || 0);
             document.getElementById('contagem-almocos').innerText = data.almocos || 0;
-            document.getElementById('sync-status').innerText = "✅ Sincronizado";
+            document.getElementById('sync-status').innerText = "CONECTADO";
             calc();
-        } catch(e) { document.getElementById('sync-status').innerText = "⚠️ Offline"; calc(); }
+        } catch(e) { document.getElementById('sync-status').innerText = "OFFLINE"; calc(); }
     }
 
     function processarFoto(input) {
@@ -129,9 +202,8 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                const p = document.getElementById('preview-foto');
-                p.src = fotoBase64;
-                p.style.display = "block";
+                document.getElementById('preview-foto').src = fotoBase64;
+                document.getElementById('preview-foto').style.display = "block";
             };
             img.src = e.target.result;
         };
@@ -162,15 +234,15 @@
         let hoje = (sai > ent) ? (sai - ent - desc) : 0;
         let total = acumuladoMes + hoje;
         document.getElementById('bar-normal').style.width = Math.min(100, (total/174)*100) + "%";
-        document.getElementById('txt-normal').innerText = Math.min(total, 174).toFixed(2) + "/174h";
+        document.getElementById('txt-normal').innerText = Math.min(total, 174).toFixed(1) + "h";
         let acordo = total > 174 ? Math.min(15, total - 174) : 0;
         document.getElementById('bar-acordo').style.width = (acordo/15)*100 + "%";
-        document.getElementById('txt-acordo').innerText = acordo.toFixed(2) + "/15h";
+        document.getElementById('txt-acordo').innerText = acordo.toFixed(1) + "h";
     }
 
     async function enviar() {
         const btn = document.getElementById('main-btn');
-        btn.innerText = "Enviando..."; btn.disabled = true;
+        btn.innerText = "..."; btn.disabled = true;
         let desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
                    (document.getElementById('check-almoco').checked ? parseFloat(document.getElementById('select-almoco').value) : 0);
 
@@ -186,8 +258,8 @@
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             localStorage.removeItem('p_ent'); localStorage.removeItem('p_sai');
-            alert("Sucesso!"); location.reload();
-        } catch (e) { alert("Erro!"); btn.disabled = false; btn.innerText = "Submeter Registo"; }
+            alert("Enviado com sucesso!"); location.reload();
+        } catch (e) { alert("Erro ao enviar"); btn.disabled = false; btn.innerText = "SUBMETER"; }
     }
     window.onload = carregar;
 </script>
