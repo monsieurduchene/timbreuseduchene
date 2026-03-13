@@ -21,7 +21,9 @@
         
         header { background: var(--header-bg); color: var(--header-text); padding: 50px 15px; margin-bottom: var(--gap-main); text-align: center; }
         .header-title { font-family: 'Lexend Giga', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -1.5px; text-transform: uppercase; line-height: 1; }
-        #sync-status { display: block; font-size: 9px; font-weight: bold; opacity: 0.5; margin-top: 12px; text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* Ajuste do Sync Status */
+        #sync-status { display: block; font-size: 10px; font-weight: 900; margin-top: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-secondary); transition: color 0.3s ease; }
 
         .main-container { max-width: 400px; margin: 0 auto; padding: 0 15px; box-sizing: border-box; padding-bottom: 60px; }
         
@@ -76,7 +78,7 @@
     <header>
         <div class="header-content">
             <span class="header-title">POINTAGE MÜLLER</span>
-            <span id="sync-status">---</span>
+            <span id="sync-status">A SINCRONIZAR...</span>
         </div>
     </header>
 
@@ -144,6 +146,7 @@
     </div>
 
 <script>
+    // LINHA 127: COLA AQUI O TEU URL DO SCRIPT
     const scriptURL = "https://script.google.com/macros/s/AKfycbxFW9QGOu2UkqsF7CocXamPXb8lU4ismxMe84b10qCvFhnNk3QtUmxzHPRPGKFV8Uxb/exec";
     
     let acumuladoMes = 0; let totalAlmocos = 0; let mealDuration = 1.5; let fotoBase64 = "";
@@ -151,14 +154,21 @@
     async function carregar() {
         document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "";
         document.getElementById('input-saida').value = localStorage.getItem('p_sai') || "";
+        const statusEl = document.getElementById('sync-status');
+        
         try {
             const res = await fetch(scriptURL);
             const data = await res.json();
             acumuladoMes = parseFloat(data.acumulado || 0);
             totalAlmocos = parseInt(data.almocos || 0);
-            document.getElementById('sync-status').innerText = "SINCRO OK";
+            statusEl.innerText = "SINCRO OK";
+            statusEl.style.color = "var(--color-done)"; // Fica verde
             calc();
-        } catch(e) { document.getElementById('sync-status').innerText = "OFFLINE"; calc(); }
+        } catch(e) { 
+            statusEl.innerText = "OFFLINE"; 
+            statusEl.style.color = "var(--color-pending)"; // Fica vermelho em erro
+            calc(); 
+        }
     }
 
     function toggleSimple(checkId, cardId) {
@@ -240,11 +250,13 @@
         try {
             const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`);
             const logs = await res.json();
+            
+            // Corrige se no array não existirem horas extra (evita NaNh visuais gerados pelo NaN do Google Sheets antigo)
             lista.innerHTML = logs.length ? logs.map(log => `
                 <div class="history-item">
                     <span>${log.data}</span>
-                    <span class="h-total">${log.total}h</span>
-                    <span class="h-extra">${parseFloat(log.extra) > 0 ? '+'+log.extra+'h' : '-'}</span>
+                    <span class="h-total">${isNaN(log.total) ? '0.00' : log.total}h</span>
+                    <span class="h-extra">${(!isNaN(log.extra) && parseFloat(log.extra) > 0) ? '+'+log.extra+'h' : '-'}</span>
                 </div>
             `).join('') : '<div style="text-align:center; font-size:11px;">SEM DADOS</div>';
         } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERRO DE LIGAÇÃO</div>'; }
@@ -275,22 +287,4 @@
         const btn = document.getElementById('main-btn');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
         const desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
-                     (document.getElementById('check-almoco').checked ? mealDuration : 0);
-        const payload = {
-            data: new Date().toISOString().split('T')[0],
-            entrada: document.getElementById('input-entrada').value,
-            saida: document.getElementById('input-saida').value,
-            almocoDuracao: desc,
-            subAlmoco: document.getElementById('check-almoco').checked ? 1 : 0,
-            foto: fotoBase64
-        };
-        try {
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            localStorage.removeItem('p_ent'); localStorage.removeItem('p_sai');
-            alert("Sucesso!"); location.reload();
-        } catch (e) { alert("Erro ao enviar"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
-    }
-    window.onload = carregar;
-</script>
-</body>
-</html>
+                     (document.getElementById('check-almoco').checked ? mealDuration :
