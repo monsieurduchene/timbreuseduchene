@@ -1,88 +1,24 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ponto Smart</title>
-    <style>
-        :root { --bg: #efefef; --card: #f5f5f5; --shadow: #d1d1d1; --white: #ffffff; --accent: #ff6b35; --blue: #3498db; --green: #2ecc71; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        
-        .card { background: var(--card); border-radius: 25px; padding: 20px; box-shadow: 9px 9px 16px var(--shadow), -9px -9px 16px var(--white); margin-bottom: 20px; }
-        
-        /* Progress Bars */
-        .progress-box { margin-bottom: 20px; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; font-weight: bold; }
-        .bar-bg { background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; box-shadow: inset 2px 2px 5px #bbb; }
-        .bar-fill { height: 100%; width: 0%; transition: width 0.8s ease-out; }
-        
-        /* Cores das Barras */
-        .fill-normal { background: var(--blue); }
-        .fill-acordo { background: var(--accent); }
-
-        .extra-badge { background: #333; color: white; padding: 15px; border-radius: 18px; text-align: center; }
-        .extra-badge big { font-size: 24px; display: block; font-weight: bold; }
-
-        /* Marcação */
-        .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .btn-ponto { background: var(--card); border-radius: 20px; padding: 15px; text-align: center; box-shadow: 6px 6px 12px var(--shadow), -6px -6px 12px var(--white); cursor: pointer; }
-        .btn-ponto strong { display: block; font-size: 20px; color: var(--accent); margin-top: 5px; }
-
-        /* Subsídio switch */
-        .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; }
-        input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--green); }
-
-        .btn-submit { width: 100%; background: var(--green); color: white; border: none; padding: 20px; border-radius: 20px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2); cursor: pointer; }
-    </style>
-</head>
-<body>
-
-    <header style="margin-bottom: 25px;">
-        <span style="color: #888; font-size: 14px;">Objetivo Mensal</span>
-        <h1 style="margin: 0; font-size: 28px;">174h + 15h</h1>
-    </header>
-
-    <div class="card">
-        <div class="progress-box">
-            <div class="progress-label"><span>Horas Normais</span><span id="txt-normal">0 / 174h</span></div>
-            <div class="bar-bg"><div id="bar-normal" class="bar-fill fill-normal"></div></div>
-        </div>
-        <div class="progress-box">
-            <div class="progress-label"><span>Acordo (Adicional)</span><span id="txt-acordo">0 / 15h</span></div>
-            <div class="bar-bg"><div id="bar-acordo" class="bar-fill fill-acordo"></div></div>
-        </div>
-        <div class="extra-badge">
-            <small>HORAS EXTRA REAIS</small>
-            <big id="txt-extra-real">0.00h</big>
-        </div>
-    </div>
-
-    <div class="grid-ponto">
-        <div class="btn-ponto" onclick="setNow('entrada')">Entrada<strong id="disp-entrada">--:--</strong></div>
-        <div class="btn-ponto" onclick="setNow('saida')">Saída<strong id="disp-saida">--:--</strong></div>
-    </div>
-
-    <div class="card">
-        <div class="row">
-            <span>Subsídio Almoço (16 CHF)</span>
-            <input type="checkbox" id="check-subsidio" checked>
-        </div>
-        <div class="row" style="border-top: 1px solid #ddd; margin-top: 10px; padding-top: 15px;">
-            <span>Pausa Almoço</span>
-            <select id="select-almoco" onchange="calc()" style="padding: 5px 10px; border-radius: 8px; border: 1px solid #ccc;">
-                <option value="1">1.0h</option>
-                <option value="1.5">1.5h</option>
-            </select>
-        </div>
-    </div>
-
-    <button class="btn-submit" onclick="enviar()">Submeter Registo</button>
-
 <script>
-    // --- CONFIGURAÇÃO INICIAL ---
-    // Coloca aqui as horas que já tens feitas este mês (ex: do Excel)
-    let acumuladoNoMes = 180.00; 
+    const scriptURL = "TEU_URL_AQUI"; // SUBSTITUI PELO TEU URL /exec
+    let acumuladoNoMes = 0; 
     let tempos = { entrada: null, saida: null };
+
+    // FUNÇÃO DE LEITURA AUTOMÁTICA
+    async function carregarDadosReais() {
+        const statusHeader = document.querySelector('header span');
+        statusHeader.innerText = "⏳ A sincronizar com Excel...";
+        
+        try {
+            const response = await fetch(scriptURL);
+            const data = await response.json();
+            acumuladoNoMes = parseFloat(data.acumulado);
+            statusHeader.innerText = "✅ Sincronizado";
+            calc(); // Atualiza as barras com os dados reais
+        } catch (error) {
+            statusHeader.innerText = "⚠️ Erro na leitura";
+            console.error(error);
+        }
+    }
 
     function setNow(t) {
         let n = new Date();
@@ -106,40 +42,35 @@
         let hoje = (sai > ent) ? (sai - ent - alm) : 0;
         let total = acumuladoNoMes + hoje;
 
-        // Lógica de progressão
         let normais = Math.min(total, 174);
         let acordo = (total > 174) ? Math.min(total - 174, 15) : 0;
         let extras = (total > 189) ? (total - 189) : 0;
 
-        // Atualizar UI
         document.getElementById('txt-normal').innerText = normais.toFixed(2) + " / 174h";
         document.getElementById('bar-normal').style.width = (normais/174*100) + "%";
-        
         document.getElementById('txt-acordo').innerText = acordo.toFixed(2) + " / 15h";
         document.getElementById('bar-acordo').style.width = (acordo/15*100) + "%";
-        
         document.getElementById('txt-extra-real').innerText = extras.toFixed(2) + "h";
     }
 
     async function enviar() {
-        const url = "https://script.google.com/macros/s/AKfycbwRf46PK11qZwjVSuqML0siZRQ0pq9WQwj_JHzyPzJOUD7OhYsHkZlQQF_T6Lyi593w/exec";
-        if(!tempos.entrada || !tempos.saida) return alert("Marca entrada e saída!");
+        if(!tempos.entrada || !tempos.saida) return alert("Marca os tempos!");
+        const btn = document.querySelector('.btn-submit');
+        btn.innerText = "A guardar...";
 
         const payload = {
             data: new Date().toISOString().split('T')[0],
             entrada: toCent(tempos.entrada),
             saida: toCent(tempos.saida),
             almocoDuracao: document.getElementById('select-almoco').value,
-            extraReal: document.getElementById('txt-extra-real').innerText,
             subAlmoco: document.getElementById('check-subsidio').checked ? 16 : 0
         };
 
-        await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        alert("Enviado para o Excel!");
+        await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        alert("Enviado!");
+        location.reload(); // Recarrega para ler os novos valores do Excel
     }
-    
-    // Inicia barras com o acumulado
-    calc();
+
+    // Iniciar leitura ao abrir a App
+    window.onload = carregarDadosReais;
 </script>
-</body>
-</html>
