@@ -7,83 +7,98 @@
     <style>
         :root { --bg: #efefef; --card: #efefef; --shadow: #d1d1d1; --white: #ffffff; --accent: #ff6b35; --blue: #3498db; --green: #2ecc71; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; }
+        .container { max-width: 400px; margin: 0 auto; }
+        
+        header { margin-bottom: 20px; padding-left: 5px; }
+        #sync-status { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { margin: 0; font-size: 24px; font-weight: 800; }
+
         .card { background: var(--card); border-radius: 25px; padding: 20px; box-shadow: 9px 9px 16px var(--shadow), -9px -9px 16px var(--white); margin-bottom: 20px; }
         
-        /* Grid de Marcação - Área de toque total */
+        /* 1. ÁREAS DE MARCAÇÃO (PRESSIONÁVEIS) */
         .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .btn-ponto { 
-            background: var(--card); border-radius: 20px; padding: 20px 10px; text-align: center; 
+            background: var(--card); border-radius: 22px; padding: 25px 10px; text-align: center; 
             box-shadow: 6px 6px 12px var(--shadow), -6px -6px 12px var(--white); 
-            cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; position: relative; border: none;
         }
-        .btn-ponto label { font-size: 12px; color: #888; margin-bottom: 8px; font-weight: bold; }
+        .btn-ponto:active { box-shadow: inset 4px 4px 8px var(--shadow); transform: scale(0.98); }
+        .btn-ponto label { font-size: 11px; color: #999; font-weight: bold; display: block; margin-bottom: 8px; pointer-events: none; }
         
-        /* Input de tempo ocupa o quadrado todo */
+        /* Input transparente que ocupa a área toda para o clique funcionar */
         .time-input { 
-            border: none; background: transparent; font-size: 24px; font-weight: bold; 
+            border: none; background: transparent; font-size: 26px; font-weight: bold; 
             color: var(--accent); width: 100%; text-align: center; font-family: inherit;
             outline: none;
         }
 
-        /* Botão Foto */
+        /* 2. OPÇÕES E FOTO */
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+        .divider { border-top: 1px solid rgba(0,0,0,0.05); margin: 10px 0; }
+        input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--green); }
+        select { padding: 10px; border-radius: 12px; border: none; background: #ddd; font-weight: bold; font-size: 14px; }
+
         .btn-foto { 
-            width: 100%; background: #555; color: white; border: none; padding: 15px; 
-            border-radius: 15px; margin-bottom: 20px; font-weight: bold; font-size: 14px;
+            width: 100%; background: #444; color: white; border: none; padding: 16px; 
+            border-radius: 18px; margin-bottom: 15px; font-weight: bold; font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         #preview-foto { width: 100%; border-radius: 15px; display: none; margin-bottom: 20px; border: 2px solid var(--white); }
 
-        /* Submeter */
+        /* 3. BOTÃO SUBMETER */
         .btn-submit { 
-            width: 100%; background: var(--green); color: white; border: none; padding: 20px; 
-            border-radius: 20px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(46,204,113,0.3); 
-            margin-bottom: 30px; 
+            width: 100%; background: var(--green); color: white; border: none; padding: 22px; 
+            border-radius: 22px; font-size: 18px; font-weight: bold; 
+            box-shadow: 0 10px 20px rgba(46,204,113,0.3); margin-bottom: 30px; 
         }
 
-        /* Barras de Progresso no fundo */
-        .progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: bold; color: #666; }
+        /* 4. BARRAS DE PROGRESSO (NO FUNDO) */
+        .progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: bold; color: #777; }
         .bar-bg { background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1); }
-        .bar-fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
+        .bar-fill { height: 100%; width: 0%; transition: width 1.2s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
         .fill-normal { background: var(--blue); }
         .fill-acordo { background: var(--accent); }
     </style>
 </head>
 <body>
 
-    <header style="margin-bottom: 20px; padding-left: 5px;">
-        <span id="sync-status" style="font-size:11px; color:#888; text-transform: uppercase;">Sincronizando...</span>
-        <h1 style="margin:0; font-size: 26px;">Meu Registo</h1>
+<div class="container">
+    <header>
+        <span id="sync-status">Sincronizando...</span>
+        <h1>Meu Registo</h1>
     </header>
 
     <div class="grid-ponto">
-        <div class="btn-ponto">
+        <div class="btn-ponto" onclick="document.getElementById('input-entrada').showPicker()">
             <label>ENTRADA</label>
-            <input type="time" id="input-entrada" class="time-input" onchange="manualChange('ent')">
+            <input type="time" id="input-entrada" class="time-input" onchange="manualSave('ent')">
         </div>
-        <div class="btn-ponto">
+        <div class="btn-ponto" onclick="document.getElementById('input-saida').showPicker()">
             <label>SAÍDA</label>
-            <input type="time" id="input-saida" class="time-input" onchange="manualChange('sai')">
+            <input type="time" id="input-saida" class="time-input" onchange="manualSave('sai')">
         </div>
     </div>
 
     <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="row">
             <span style="font-weight: 500;">Pausa Fixa (30 min)</span>
             <input type="checkbox" id="check-pausa" checked onchange="calc()">
         </div>
-        <hr style="opacity:0.1; margin:15px 0;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight: 500;">Pausa Almoço (+ Subsidio)</span>
+        <div class="divider"></div>
+        <div class="row">
+            <span style="font-weight: 500;">Pausa Almoço</span>
             <input type="checkbox" id="check-almoco" onchange="toggleAlmoco()">
         </div>
-        <div id="area-almoco" style="display:none; margin-top:15px;">
-            <select id="select-almoco" onchange="calc()" style="width:100%; padding:12px; border-radius:12px; border:none; background:#ddd; font-weight:bold;">
+        <div id="area-almoco" style="display:none; margin-top:10px;">
+            <select id="select-almoco" onchange="calc()" style="width:100%;">
                 <option value="1">Duração: 1.0 hora</option>
                 <option value="1.5">Duração: 1.5 horas</option>
             </select>
+            <p style="font-size: 10px; color: var(--green); margin-top: 8px; font-weight: bold;">+ Subsídio de 16 CHF será adicionado</p>
         </div>
     </div>
 
-    <button class="btn-foto" onclick="document.getElementById('file-input').click()">📷 Tirar Foto do Cartão</button>
+    <button class="btn-foto" id="btn-foto-ui" onclick="document.getElementById('file-input').click()">📷 Tirar Foto do Cartão</button>
     <input type="file" id="file-input" accept="image/*" capture="camera" style="display:none;" onchange="previewFile()">
     <img id="preview-foto">
 
@@ -96,53 +111,61 @@
         <div class="progress-label"><span>Acordo Extra (15h)</span><span id="txt-acordo">0/15h</span></div>
         <div class="bar-bg"><div id="bar-acordo" class="bar-fill fill-acordo"></div></div>
         
-        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:bold; margin-top:5px;">
-            <span style="color:#666;">Dias com Almoço:</span>
+        <div class="divider"></div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:bold;">
+            <span style="color:#888;">Dias com Almoço este mês:</span>
             <span id="contagem-almocos" style="color:var(--green);">0</span>
         </div>
     </div>
+</div>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbzqm3dS807QeqalQIXdLAOgYDQCKE981WR5zgdHIVa14Yexoe2rzeaH3WHDVtFkYEv8/exec"; // SUBSTITUIR PELO TEU LINK /EXEC
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyzx710qg0OyUOwsaI0zN-sWCSmGlyUqi9by00_lOf6dZ3IeI5_b8BlrdJ3rhSBDrkf/exec"; // <--- COLA AQUI O TEU LINK DO GOOGLE
     let acumuladoMes = 0;
     let fotoBase64 = "";
 
     async function carregar() {
-        // Recuperar persistência
+        // Recuperar horas guardadas no iPhone
         document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "";
         document.getElementById('input-saida').value = localStorage.getItem('p_sai') || "";
         
         try {
             const res = await fetch(scriptURL);
             const data = await res.json();
-            acumuladoMes = data.acumulado || 0;
+            acumuladoMes = parseFloat(data.acumulado || 0);
             document.getElementById('contagem-almocos').innerText = data.almocos || 0;
             document.getElementById('sync-status').innerText = "✅ Sincronizado";
             calc();
         } catch(e) { 
-            document.getElementById('sync-status').innerText = "⚠️ Offline"; 
+            document.getElementById('sync-status').innerText = "⚠️ Modo Offline"; 
             calc();
         }
     }
 
-    function manualChange(id) {
-        localStorage.setItem('p_' + id, document.getElementById('input-' + id).value);
+    function manualSave(tipo) {
+        const val = document.getElementById('input-' + tipo).value;
+        localStorage.setItem('p_' + tipo, val);
         calc();
     }
 
     function toggleAlmoco() {
-        document.getElementById('area-almoco').style.display = document.getElementById('check-almoco').checked ? "block" : "none";
+        const isChecked = document.getElementById('check-almoco').checked;
+        document.getElementById('area-almoco').style.display = isChecked ? "block" : "none";
         calc();
     }
 
     function previewFile() {
         const file = document.getElementById('file-input').files[0];
         const reader = new FileReader();
+        const btnFoto = document.getElementById('btn-foto-ui');
+        
         reader.onloadend = function() {
             fotoBase64 = reader.result;
             const img = document.getElementById('preview-foto');
             img.src = reader.result;
             img.style.display = "block";
+            btnFoto.innerText = "✅ Foto Capturada";
+            btnFoto.style.background = "#2ecc71";
         }
         if (file) reader.readAsDataURL(file);
     }
@@ -156,54 +179,62 @@
     function calc() {
         let ent = toCent(document.getElementById('input-entrada').value);
         let sai = toCent(document.getElementById('input-saida').value);
-        let desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
-                   (document.getElementById('check-almoco').checked ? parseFloat(document.getElementById('select-almoco').value) : 0);
         
-        let hoje = (sai > ent) ? (sai - ent - desc) : 0;
+        // Lógica de descontos
+        let descPausa = document.getElementById('check-pausa').checked ? 0.5 : 0;
+        let descAlmoco = document.getElementById('check-almoco').checked ? parseFloat(document.getElementById('select-almoco').value) : 0;
+        
+        let hoje = (sai > ent) ? (sai - ent - (descPausa + descAlmoco)) : 0;
         let total = acumuladoMes + hoje;
 
-        // Atualizar Barras
+        // Atualizar UI das Barras
         let normais = Math.min(total, 174);
         document.getElementById('bar-normal').style.width = (normais/174*100) + "%";
-        document.getElementById('txt-normal').innerText = normais.toFixed(2) + "/174h";
+        document.getElementById('txt-normal').innerText = normais.toFixed(2) + " / 174h";
         
         let acordo = total > 174 ? Math.min(15, total - 174) : 0;
         document.getElementById('bar-acordo').style.width = (acordo/15*100) + "%";
-        document.getElementById('txt-acordo').innerText = acordo.toFixed(2) + "/15h";
+        document.getElementById('txt-acordo').innerText = acordo.toFixed(2) + " / 15h";
     }
 
     async function enviar() {
         const ent = document.getElementById('input-entrada').value;
         const sai = document.getElementById('input-saida').value;
-        if(!ent || !sai) return alert("Por favor, preenche a Entrada e Saída!");
+        
+        if(!ent || !sai) {
+            alert("Por favor, marca a entrada e a saída primeiro.");
+            return;
+        }
 
         const btn = document.getElementById('main-btn');
-        const originalText = btn.innerText;
         btn.innerText = "A enviar dados...";
         btn.disabled = true;
         
-        let desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
-                   (document.getElementById('check-almoco').checked ? parseFloat(document.getElementById('select-almoco').value) : 0);
+        let descTotal = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
+                        (document.getElementById('check-almoco').checked ? parseFloat(document.getElementById('select-almoco').value) : 0);
 
         const payload = {
             data: new Date().toISOString().split('T')[0],
             entrada: toCent(ent),
             saida: toCent(sai),
-            almocoDuracao: desc,
+            almocoDuracao: descTotal,
             subAlmoco: document.getElementById('check-almoco').checked ? 16 : 0,
             foto: fotoBase64
         };
 
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            
+            // Limpar memória do dia
             localStorage.removeItem('p_ent');
             localStorage.removeItem('p_sai');
-            alert("Sucesso! Registo e Foto guardados.");
+            
+            alert("Sucesso! Registo guardado no Excel e Foto no Drive.");
             location.reload();
         } catch (e) {
-            alert("Erro na ligação. Tenta de novo.");
+            alert("Erro ao enviar. Verifique a sua ligação.");
             btn.disabled = false;
-            btn.innerText = originalText;
+            btn.innerText = "Submeter Registo";
         }
     }
 
