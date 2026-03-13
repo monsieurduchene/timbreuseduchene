@@ -42,29 +42,31 @@
         .toggle.active i { color: var(--icon-active); opacity: 1; }
         .toggle.inactive { opacity: 0.4; filter: grayscale(1); }
 
-        .btn-small { height: 35px; border-radius: 12px; background: var(--card-ponto); border: none; color: var(--text-secondary); font-weight: bold; font-size: 11px; text-transform: uppercase; }
+        .btn-small { height: 35px; border-radius: 12px; background: var(--card-ponto); border: none; color: var(--text-secondary); font-weight: bold; font-size: 11px; text-transform: uppercase; cursor: pointer; }
 
-        .btn-foto { width: 100%; background: var(--btn-foto); color: #fafafa; border: none; border-radius: 20px; font-size: 20px; }
-        .btn-submit { width: 100%; background: var(--btn-submit); color: #fafafa; border: none; padding: 25px; border-radius: 20px; font-size: 22px; }
+        .btn-foto { width: 100%; background: var(--btn-foto); color: #fafafa; border: none; border-radius: 20px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-submit { width: 100%; background: var(--btn-submit); color: #fafafa; border: none; padding: 25px; border-radius: 20px; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         
-        #preview-foto { width: 100%; border-radius: 20px; display: none; margin-bottom: var(--gap-main); }
+        #preview-foto { width: 100%; border-radius: 20px; display: none; margin-bottom: var(--gap-main); object-fit: cover; }
 
         .stats-container { background: var(--card-stats); border-radius: 20px; padding: 20px; margin-bottom: 30px; }
         .progress-label { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: 800; color: #9e9e9e; text-transform: uppercase; }
         .bar-bg { background: var(--bar-bg); height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 15px; }
         .bar-fill { height: 100%; width: 0%; transition: width 0.5s ease; }
 
-        /* ESTILOS DO HISTÓRICO */
-        .history-section { border-top: 2px solid #eee; pt: 30px; margin-top: 10px; }
-        .history-title { font-family: 'Lexend Giga', sans-serif; font-size: 14px; margin-bottom: 15px; display: block; }
+        /* AJUSTES DO HISTÓRICO */
+        .history-section { margin-top: 10px; text-align: center; }
+        .history-title { font-family: 'Lexend Giga', sans-serif; font-size: 14px; margin-bottom: 15px; display: block; width: 100%; }
         
         .select-mes { 
-            width: 100%; padding: 15px; border-radius: 15px; border: none; 
-            background: var(--card-ponto); font-weight: bold; color: var(--text);
-            font-size: 14px; margin-bottom: 15px; appearance: none;
+            width: 100%; height: 35px; border-radius: 12px; border: none; 
+            background: var(--card-ponto); font-weight: bold; color: var(--text-secondary);
+            font-size: 11px; margin-bottom: 15px; text-transform: uppercase;
+            text-align: center; text-align-last: center; appearance: none;
+            cursor: pointer;
         }
 
-        .history-list { display: flex; flex-direction: column; gap: 8px; }
+        .history-list { display: flex; flex-direction: column; gap: 8px; text-align: left; }
         .history-item { 
             display: grid; grid-template-columns: 2fr 1fr 1fr; 
             background: var(--card-ponto); padding: 12px 15px; 
@@ -101,13 +103,13 @@
                 <input type="checkbox" id="check-pausa" style="display:none" checked onchange="calc()">
             </div>
             <div class="btn-card toggle meal-container inactive" id="card-almoco">
-                <div style="height:70%; display:flex; align-items:center" onclick="toggleMeal()">
+                <div style="height:70%; display:flex; align-items:center; width:100%; justify-content:center" onclick="toggleMeal()">
                     <i class="fa-solid fa-utensils"></i>
                     <input type="checkbox" id="check-almoco" style="display:none" onchange="calc()">
                 </div>
-                <div style="height:30%; display:flex; width:100%; border-top:1px solid #ddd">
-                    <div class="meal-opt" id="opt-1" style="flex:1; text-align:center; font-size:10px; padding:5px" onclick="setMealTime(1)">1H</div>
-                    <div class="meal-opt active" id="opt-15" style="flex:1; text-align:center; font-size:10px; padding:5px; background:var(--icon-active); color:white" onclick="setMealTime(1.5)">1H30</div>
+                <div style="height:30%; display:flex; width:100%; border-top:1px solid rgba(0,0,0,0.05)">
+                    <div class="meal-opt" id="opt-1" style="flex:1; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800;" onclick="setMealTime(1)">1H</div>
+                    <div class="meal-opt active" id="opt-15" style="flex:1; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; background:var(--icon-active); color:white;" onclick="setMealTime(1.5)">1H30</div>
                 </div>
             </div>
         </div>
@@ -148,14 +150,13 @@
                 <option value="11">Novembro</option>
                 <option value="12">Dezembro</option>
             </select>
-            <div class="history-list" id="lista-historico">
-                </div>
+            <div class="history-list" id="lista-historico"></div>
         </div>
     </div>
 
 <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbwh7Af53Prb7GVP1t0IMcPkZ0Y8kfSeungtsvwYUTcAmkgbw_XSSxzdys88qTGtHcg/exec";
-    let acumuladoMes = 0; let mealDuration = 1.5;
+    let acumuladoMes = 0; let mealDuration = 1.5; let fotoBase64 = "";
 
     async function carregar() {
         document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "";
@@ -169,34 +170,134 @@
         } catch(e) { document.getElementById('sync-status').innerText = "OFFLINE"; calc(); }
     }
 
-    // NOVA FUNÇÃO DE CONSULTA
+    function toggleSimple(checkId, cardId) {
+        const cb = document.getElementById(checkId);
+        cb.checked = !cb.checked;
+        const card = document.getElementById(cardId);
+        cb.checked ? card.classList.add('active') : card.classList.remove('active');
+        calc();
+    }
+
+    function toggleMeal() {
+        const cb = document.getElementById('check-almoco');
+        const card = document.getElementById('card-almoco');
+        cb.checked = !cb.checked;
+        cb.checked ? card.classList.replace('inactive', 'active') : card.classList.replace('active', 'inactive');
+        calc();
+    }
+
+    function setMealTime(val) {
+        mealDuration = val;
+        document.getElementById('opt-1').style.background = val === 1 ? 'var(--icon-active)' : 'rgba(0,0,0,0.06)';
+        document.getElementById('opt-1').style.color = val === 1 ? 'white' : 'var(--text-secondary)';
+        document.getElementById('opt-15').style.background = val === 1.5 ? 'var(--icon-active)' : 'rgba(0,0,0,0.06)';
+        document.getElementById('opt-15').style.color = val === 1.5 ? 'white' : 'var(--text-secondary)';
+        calc();
+    }
+
+    function manualSave(tipo) {
+        localStorage.setItem('p_' + tipo, document.getElementById('input-' + tipo).value);
+        calc();
+    }
+
+    function toCent(ts) {
+        if(!ts) return 0;
+        let [h, m] = ts.split(':').map(Number);
+        return h + (m/60);
+    }
+
+    function formatTime(decimal) {
+        let hrs = Math.floor(decimal);
+        let mins = Math.round((decimal - hrs) * 60);
+        return hrs + "h" + (mins < 10 ? "0" : "") + mins + "m";
+    }
+
+    function calc() {
+        let ent = toCent(document.getElementById('input-entrada').value);
+        let sai = toCent(document.getElementById('input-saida').value);
+        let desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
+                   (document.getElementById('check-almoco').checked ? mealDuration : 0);
+        if (sai < ent && sai !== 0) sai += 24;
+        let hoje = (sai > ent) ? Math.max(0, sai - ent - desc) : 0;
+        let total = acumuladoMes + hoje;
+        
+        let base = Math.min(total, 174);
+        document.getElementById('bar-base').style.width = (base/174)*100 + "%";
+        document.getElementById('bar-base').style.backgroundColor = total >= 174 ? "var(--color-done)" : "var(--color-pending)";
+        document.getElementById('txt-base').innerText = formatTime(base);
+
+        let extra = total > 174 ? Math.min(15, total - 174) : 0;
+        document.getElementById('bar-15').style.width = (extra/15)*100 + "%";
+        document.getElementById('bar-15').style.backgroundColor = total >= 189 ? "var(--color-done)" : "var(--color-pending)";
+        document.getElementById('txt-15').innerText = formatTime(extra);
+    }
+
     async function consultarMes() {
         const mes = document.getElementById('select-mes').value;
         const lista = document.getElementById('lista-historico');
-        if(!mes) return;
-
-        lista.innerHTML = '<div style="text-align:center; opacity:0.5">A carregar...</div>';
-        
+        if(!mes) { lista.innerHTML = ""; return; }
+        lista.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:11px;">A CARREGAR...</div>';
         try {
-            // Assume-se que o teu script aceita o parâmetro ?mes=03
             const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}`);
             const logs = await res.json();
-            
-            lista.innerHTML = logs.map(log => `
+            lista.innerHTML = logs.length ? logs.map(log => `
                 <div class="history-item">
                     <span>${log.data}</span>
                     <span class="h-total">${log.total}h</span>
-                    <span class="h-extra">${log.extra > 0 ? '+'+log.extra+'h' : '-'}</span>
+                    <span class="h-extra">${parseFloat(log.extra) > 0 ? '+'+log.extra+'h' : '-'}</span>
                 </div>
-            `).join('');
-        } catch(e) {
-            lista.innerHTML = '<div style="text-align:center; color:red">Erro ao carregar dados.</div>';
+            `).join('') : '<div style="text-align:center; font-size:11px;">SEM DADOS</div>';
+        } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERRO DE LIGAÇÃO</div>'; }
+    }
+
+    function processarFoto(input) {
+        const file = input.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800;
+                const scaleSize = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                document.getElementById('preview-foto').src = fotoBase64;
+                document.getElementById('preview-foto').style.display = "block";
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function enviar() {
+        const btn = document.getElementById('main-btn');
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+        
+        const desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
+                     (document.getElementById('check-almoco').checked ? mealDuration : 0);
+        
+        const payload = {
+            data: new Date().toISOString().split('T')[0],
+            entrada: toCent(document.getElementById('input-entrada').value),
+            saida: toCent(document.getElementById('input-saida').value),
+            almocoDuracao: desc,
+            subAlmoco: document.getElementById('check-almoco').checked ? 1 : 0,
+            foto: fotoBase64
+        };
+
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            localStorage.removeItem('p_ent'); localStorage.removeItem('p_sai');
+            alert("Sucesso!"); location.reload();
+        } catch (e) { 
+            alert("Erro ao enviar"); 
+            btn.disabled = false; btn.innerHTML = originalContent; 
         }
     }
 
-    // ... (restantes funções calc, toggle, enviar permanecem iguais)
-    function toggleSimple(id, card) { /* ... */ }
-    function calc() { /* ... */ }
     window.onload = carregar;
 </script>
 </body>
