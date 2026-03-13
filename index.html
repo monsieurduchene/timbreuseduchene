@@ -9,188 +9,166 @@
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; }
         .card { background: var(--card); border-radius: 25px; padding: 20px; box-shadow: 9px 9px 16px var(--shadow), -9px -9px 16px var(--white); margin-bottom: 20px; }
         
-        /* Progress Bars */
-        .progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: bold; color: #666; }
-        .bar-bg { background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; box-shadow: inset 2px 2px 5px #bbb; margin-bottom: 15px; }
-        .bar-fill { height: 100%; width: 0%; transition: width 1s ease-in-out; }
+        /* Grid de Marcação - Áreas Pressionáveis */
+        .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .btn-ponto { background: var(--card); border-radius: 20px; padding: 20px 10px; text-align: center; box-shadow: 6px 6px 12px var(--shadow), -6px -6px 12px var(--white); cursor: pointer; border: none; width: 100%; }
+        .btn-ponto:active { box-shadow: inset 4px 4px 8px var(--shadow); }
+        .btn-ponto label { font-size: 12px; color: #888; display: block; pointer-events: none; }
+        .btn-ponto input { border: none; background: transparent; font-size: 22px; font-weight: bold; color: var(--accent); width: 100%; text-align: center; pointer-events: none; }
+
+        /* Foto */
+        .btn-foto { width: 100%; background: #555; color: white; border: none; padding: 15px; border-radius: 15px; margin-bottom: 20px; font-weight: bold; }
+        #preview-foto { width: 100%; border-radius: 15px; display: none; margin-bottom: 20px; }
+
+        /* Submeter */
+        .btn-submit { width: 100%; background: var(--green); color: white; border: none; padding: 20px; border-radius: 20px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(46,204,113,0.3); margin-bottom: 30px; }
+
+        /* Barras de Progresso (No fundo) */
+        .progress-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; font-weight: bold; }
+        .bar-bg { background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 15px; }
+        .bar-fill { height: 100%; width: 0%; transition: width 1s; }
         .fill-normal { background: var(--blue); }
         .fill-acordo { background: var(--accent); }
-
-        /* Inputs Manuais */
-        .grid-ponto { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .btn-ponto { background: var(--card); border-radius: 20px; padding: 12px; text-align: center; box-shadow: 6px 6px 12px var(--shadow), -6px -6px 12px var(--white); position: relative; }
-        .btn-ponto label { font-size: 12px; color: #888; display: block; margin-bottom: 5px; }
-        input[type="time"] { border: none; background: transparent; font-size: 20px; font-weight: bold; color: var(--accent); width: 100%; text-align: center; font-family: inherit; }
-        .auto-clock { position: absolute; top: 5px; right: 10px; font-size: 14px; cursor: pointer; }
-
-        /* Switches e Opções */
-        .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
-        .divider { border-top: 1px solid #ddd; margin: 8px 0; }
-        input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--green); }
-        select { padding: 5px; border-radius: 8px; border: none; background: #ddd; }
-
-        .btn-submit { width: 100%; background: var(--green); color: white; border: none; padding: 18px; border-radius: 20px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3); margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <header style="padding-left: 10px; margin-bottom: 20px;">
-        <span id="sync-status" style="font-size: 12px; color: #888;">A carregar...</span>
-        <h1 style="margin:0; font-size: 24px;">Meu Registo</h1>
+    <header style="margin-bottom: 20px;">
+        <span id="sync-status" style="font-size:12px; color:#888;">Sincronizando...</span>
+        <h1 style="margin:0;">Meu Registo</h1>
     </header>
 
-    <div class="card">
-        <div class="progress-label"><span>Base (174h)</span><span id="txt-normal">0 / 174h</span></div>
-        <div class="bar-bg"><div id="bar-normal" class="bar-fill fill-normal"></div></div>
-        <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0 / 15h</span></div>
-        <div class="bar-bg"><div id="bar-acordo" class="bar-fill fill-acordo"></div></div>
-        <div style="text-align:center; background:#333; color:#fff; padding:10px; border-radius:15px;">
-            <small style="font-size:10px; opacity:0.7;">EXTRA REAL</small>
-            <div id="txt-extra-real" style="font-size:20px; font-weight:bold;">0.00h</div>
-        </div>
-    </div>
-
     <div class="grid-ponto">
-        <div class="btn-ponto">
-            <span class="auto-clock" onclick="setNow('entrada')">🕒</span>
+        <div class="btn-ponto" onclick="setNow('entrada')">
             <label>Entrada</label>
-            <input type="time" id="input-entrada" onchange="saveManual('entrada')">
+            <input type="time" id="input-entrada" readonly>
         </div>
-        <div class="btn-ponto">
-            <span class="auto-clock" onclick="setNow('saida')">🕒</span>
+        <div class="btn-ponto" onclick="setNow('saida')">
             <label>Saída</label>
-            <input type="time" id="input-saida" onchange="saveManual('saida')">
+            <input type="time" id="input-saida" readonly>
         </div>
     </div>
 
     <div class="card">
-        <div class="row">
-            <span>Pausa Fixa (30 min)</span>
-            <input type="checkbox" id="check-pausa" checked onchange="saveConfig(); calc();">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Pausa (30 min)</span>
+            <input type="checkbox" id="check-pausa" checked onchange="calc()">
         </div>
-        <div class="divider"></div>
-        <div class="row">
+        <hr style="opacity:0.2; margin:15px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
             <span>Pausa Almoço</span>
-            <input type="checkbox" id="check-almoco" onchange="saveConfig(); calc();">
+            <input type="checkbox" id="check-almoco" onchange="toggleAlmoco()">
         </div>
         <div id="area-almoco" style="display:none; margin-top:10px;">
-            <select id="select-almoco" onchange="saveConfig(); calc();" style="width:100%;">
+            <select id="select-almoco" onchange="calc()" style="width:100%; padding:10px; border-radius:10px;">
                 <option value="1">1.0 hora</option>
                 <option value="1.5">1.5 horas</option>
             </select>
         </div>
-        <div class="divider"></div>
-        <div class="row">
-            <span>Subsídio (16 CHF)</span>
-            <input type="checkbox" id="check-subsidio" checked onchange="saveConfig();">
-        </div>
     </div>
+
+    <button class="btn-foto" onclick="document.getElementById('file-input').click()">📷 Tirar Foto do Cartão</button>
+    <input type="file" id="file-input" accept="image/*" capture="camera" style="display:none;" onchange="previewFile()">
+    <img id="preview-foto">
 
     <button class="btn-submit" id="main-btn" onclick="enviar()">Submeter Registo</button>
 
+    <div class="card" style="margin-top:20px; opacity:0.8;">
+        <div class="progress-label"><span>Base (174h)</span><span id="txt-normal">0/174h</span></div>
+        <div class="bar-bg"><div id="bar-normal" class="bar-fill fill-normal"></div></div>
+        
+        <div class="progress-label"><span>Acordo (15h)</span><span id="txt-acordo">0/15h</span></div>
+        <div class="bar-bg"><div id="bar-acordo" class="bar-fill fill-acordo"></div></div>
+        
+        <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:bold;">
+            <span>Dias com Almoço:</span>
+            <span id="contagem-almocos">0</span>
+        </div>
+    </div>
+
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwRf46PK11qZwjVSuqML0siZRQ0pq9WQwj_JHzyPzJOUD7OhYsHkZlQQF_T6Lyi593w/exec"; 
-    let acumuladoNoMes = 0;
+    const scriptURL = "TEU_URL_AQUI";
+    let acumuladoMes = 0;
+    let fotoBase64 = "";
 
     async function carregar() {
-        // Recuperar valores do iPhone
-        document.getElementById('input-entrada').value = localStorage.getItem('ponto_entrada') || "";
-        document.getElementById('input-saida').value = localStorage.getItem('ponto_saida') || "";
-        document.getElementById('check-pausa').checked = localStorage.getItem('cfg_pausa') !== "false"; // Default true
-        document.getElementById('check-almoco').checked = localStorage.getItem('cfg_almoco') === "true"; // Default false
-        document.getElementById('check-subsidio').checked = localStorage.getItem('cfg_subsidio') !== "false";
-        
-        toggleAlmoco();
-
+        document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "";
+        document.getElementById('input-saida').value = localStorage.getItem('p_sai') || "";
         try {
             const res = await fetch(scriptURL);
             const data = await res.json();
-            acumuladoNoMes = parseFloat(data.acumulado || 0);
+            acumuladoMes = data.acumulado;
+            document.getElementById('contagem-almocos').innerText = data.almocos;
             document.getElementById('sync-status').innerText = "✅ Sincronizado";
             calc();
-        } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Modo Offline"; }
+        } catch(e) { document.getElementById('sync-status').innerText = "⚠️ Offline"; }
     }
 
     function setNow(id) {
         let n = new Date();
         let s = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
         document.getElementById('input-' + id).value = s;
-        saveManual(id);
-    }
-
-    function saveManual(id) {
-        localStorage.setItem('ponto_' + id, document.getElementById('input-' + id).value);
+        localStorage.setItem('p_' + id, s);
         calc();
-    }
-
-    function saveConfig() {
-        localStorage.setItem('cfg_pausa', document.getElementById('check-pausa').checked);
-        localStorage.setItem('cfg_almoco', document.getElementById('check-almoco').checked);
-        localStorage.setItem('cfg_subsidio', document.getElementById('check-subsidio').checked);
-        toggleAlmoco();
     }
 
     function toggleAlmoco() {
         document.getElementById('area-almoco').style.display = document.getElementById('check-almoco').checked ? "block" : "none";
+        calc();
+    }
+
+    function previewFile() {
+        const file = document.getElementById('file-input').files[0];
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            fotoBase64 = reader.result;
+            document.getElementById('preview-foto').src = reader.result;
+            document.getElementById('preview-foto').style.display = "block";
+        }
+        if (file) reader.readAsDataURL(file);
     }
 
     function toCent(ts) {
         if(!ts) return 0;
         let [h, m] = ts.split(':').map(Number);
-        return parseFloat((h + (m/60)).toFixed(2));
+        return h + (m/60);
     }
 
     function calc() {
         let ent = toCent(document.getElementById('input-entrada').value);
         let sai = toCent(document.getElementById('input-saida').value);
+        let desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
+                   (document.getElementById('check-almoco').checked ? parseFloat(document.getElementById('select-almoco').value) : 0);
         
-        let desconto = 0;
-        if(document.getElementById('check-pausa').checked) desconto += 0.5;
-        if(document.getElementById('check-almoco').checked) {
-            desconto += parseFloat(document.getElementById('select-almoco').value);
-        }
-
-        let hoje = (sai > ent) ? Math.max(0, sai - ent - desconto) : 0;
-        let total = acumuladoNoMes + hoje;
-
-        let normais = Math.min(total, 174);
-        let acordo = (total > 174) ? Math.min(total - 174, 15) : 0;
-        let extras = (total > 189) ? (total - 189) : 0;
-
-        document.getElementById('txt-normal').innerText = normais.toFixed(2) + " / 174h";
-        document.getElementById('bar-normal').style.width = (normais/174*100) + "%";
-        document.getElementById('txt-acordo').innerText = acordo.toFixed(2) + " / 15h";
-        document.getElementById('bar-acordo').style.width = (acordo/15*100) + "%";
-        document.getElementById('txt-extra-real').innerText = extras.toFixed(2) + "h";
+        let total = acumuladoMes + Math.max(0, sai - ent - desc);
+        document.getElementById('bar-normal').style.width = Math.min(100, (total/174)*100) + "%";
+        document.getElementById('txt-normal').innerText = Math.min(total, 174).toFixed(2) + "/174h";
+        
+        let acordo = total > 174 ? Math.min(15, total - 174) : 0;
+        document.getElementById('bar-acordo').style.width = (acordo/15)*100 + "%";
+        document.getElementById('txt-acordo').innerText = acordo.toFixed(2) + "/15h";
     }
 
     async function enviar() {
-        const ent = document.getElementById('input-entrada').value;
-        const sai = document.getElementById('input-saida').value;
-        if(!ent || !sai) return alert("Faltam marcações!");
-
         const btn = document.getElementById('main-btn');
-        btn.innerText = "A guardar..."; btn.disabled = true;
-
-        let totalPausas = 0;
-        if(document.getElementById('check-pausa').checked) totalPausas += 0.5;
-        if(document.getElementById('check-almoco').checked) totalPausas += parseFloat(document.getElementById('select-almoco').value);
+        btn.innerText = "Enviando..."; btn.disabled = true;
+        
+        let desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
+                   (document.getElementById('check-almoco').checked ? parseFloat(document.getElementById('select-almoco').value) : 0);
 
         const payload = {
             data: new Date().toISOString().split('T')[0],
-            entrada: toCent(ent),
-            saida: toCent(sai),
-            almocoDuracao: totalPausas, // Agora envia a soma de todas as pausas
-            subAlmoco: document.getElementById('check-subsidio').checked ? 16 : 0
+            entrada: toCent(document.getElementById('input-entrada').value),
+            saida: toCent(document.getElementById('input-saida').value),
+            almocoDuracao: desc,
+            subAlmoco: document.getElementById('check-almoco').checked ? 16 : 0,
+            foto: fotoBase64
         };
 
-        try {
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            localStorage.removeItem('ponto_entrada');
-            localStorage.removeItem('ponto_saida');
-            alert("Sucesso!");
-            location.reload();
-        } catch (e) { alert("Erro"); btn.disabled = false; }
+        await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        localStorage.clear();
+        alert("Sucesso!");
+        location.reload();
     }
 
     window.onload = carregar;
