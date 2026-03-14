@@ -76,12 +76,22 @@
             font-size: 11px; margin-bottom: 15px; text-transform: uppercase;
             text-align: center; text-align-last: center; appearance: none; cursor: pointer;
         }
-        .history-list { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+        .history-list { display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 15px; }
         .history-item { display: grid; grid-template-columns: 2fr 1fr 1fr; background: var(--card-ponto); padding: 12px 15px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .h-extra { color: var(--color-done); text-align: right; }
         .h-total { text-align: center; }
 
         .active-manual { background: var(--icon-active) !important; color: white !important; }
+
+        /* Nova Barra de Resumo */
+        .history-summary { 
+            background: var(--header-bg); color: white; padding: 15px; border-radius: 15px; 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; font-size: 10px; font-weight: 800; text-align: center;
+        }
+        .summary-box { display: flex; flex-direction: column; gap: 3px; }
+        .summary-val { font-size: 12px; }
+        .sum-red { color: #ff5252; }
+        .sum-green { color: #69f0ae; }
     </style>
 </head>
 <body>
@@ -200,6 +210,7 @@
                 <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
             </select>
             <div class="history-list" id="lista-historico"></div>
+            <div id="historico-resumo"></div>
         </div>
     </div>
 
@@ -212,7 +223,6 @@
         document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "07:00";
         document.getElementById('input-saida').value = localStorage.getItem('p_sai') || "00:00";
         const statusEl = document.getElementById('sync-status');
-        
         try {
             const res = await fetch(scriptURL, { mode: 'cors' });
             const data = await res.json();
@@ -232,13 +242,8 @@
         const form = document.getElementById('manual-form');
         const btn = document.getElementById('btn-manual-toggle');
         const icon = btn.querySelector('i');
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
-            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-        } else {
-            form.style.display = 'none';
-            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-        }
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up');
     }
 
     function toggleSimple(checkId, cardId) {
@@ -253,13 +258,8 @@
         const cb = document.getElementById('check-almoco');
         const card = document.getElementById('card-almoco');
         cb.checked = !cb.checked;
-        if (cb.checked) {
-            card.classList.replace('inactive', 'active');
-            setMealTime(1);
-        } else {
-            card.classList.replace('active', 'inactive');
-            setMealTime(1.5);
-        }
+        if (cb.checked) { card.classList.replace('inactive', 'active'); setMealTime(1); } 
+        else { card.classList.replace('active', 'inactive'); setMealTime(1.5); }
         calc();
     }
 
@@ -293,21 +293,17 @@
         let descPausa = document.getElementById('check-pausa').checked ? 0.5 : 0;
         let descAlmoco = document.getElementById('check-almoco').checked ? mealDuration : 0;
         let totalDescontos = descPausa + descAlmoco;
-
         if (sai < ent && sai !== 0) sai += 24;
         let hoje = (sai > ent) ? Math.max(0, sai - ent - totalDescontos) : 0;
         let totalGeral = acumuladoMes + hoje;
-        
         let base = Math.min(totalGeral, 174);
         document.getElementById('bar-base').style.width = (base/174)*100 + "%";
         document.getElementById('bar-base').style.backgroundColor = totalGeral >= 174 ? "var(--color-done)" : "var(--color-pending)";
         document.getElementById('txt-base').innerText = formatTime(base);
-
         let extra = totalGeral > 174 ? Math.min(15, totalGeral - 174) : 0;
         document.getElementById('bar-15').style.width = (extra/15)*100 + "%";
         document.getElementById('bar-15').style.backgroundColor = totalGeral >= 189 ? "var(--color-done)" : "var(--color-pending)";
         document.getElementById('txt-15').innerText = formatTime(extra);
-
         let isTodayAlmoco = document.getElementById('check-almoco').checked ? 1 : 0;
         document.getElementById('txt-dinner').innerText = totalAlmocos + isTodayAlmoco;
         document.getElementById('bar-dinner').style.width = Math.min(100, ((totalAlmocos + isTodayAlmoco)/22)*100) + "%";
@@ -316,25 +312,50 @@
     async function consultarMes() {
         const mes = document.getElementById('select-mes').value;
         const lista = document.getElementById('lista-historico');
-        if(!mes) { lista.innerHTML = ""; return; }
+        const resumo = document.getElementById('historico-resumo');
+        if(!mes) { lista.innerHTML = ""; resumo.innerHTML = ""; return; }
         lista.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:11px;">CHARGEMENT...</div>';
         try {
             const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`, { mode: 'cors' });
             const logs = await res.json();
-            lista.innerHTML = logs.length ? logs.map(log => {
-                const totalF = !isNaN(log.total) ? formatTime(parseFloat(log.total)) : '0h00m';
+            
+            let totalAcumulado = 0;
+            let listaHTML = logs.map(log => {
+                const totalDia = parseFloat(log.total) || 0;
+                totalAcumulado += totalDia;
+                const totalF = formatTime(totalDia);
                 let extraDiv = '-';
                 if (!isNaN(log.extra) && parseFloat(log.extra) > 0) {
                     extraDiv = `<span class="h-extra">+${formatTime(parseFloat(log.extra))}</span>`;
                 }
-                return `
-                    <div class="history-item">
-                        <span>${log.data}</span>
-                        <span class="h-total">${totalF}</span>
-                        <span class="h-extra">${extraDiv}</span>
+                return `<div class="history-item"><span>${log.data}</span><span class="h-total">${totalF}</span><span class="h-extra">${extraDiv}</span></div>`;
+            }).join('');
+
+            lista.innerHTML = logs.length ? listaHTML : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
+
+            // Cálculo da Barra de Resumo
+            if (logs.length) {
+                const hNormais = Math.min(totalAcumulado, 174);
+                const hLote15 = (totalAcumulado > 174) ? Math.min(15, totalAcumulado - 174) : 0;
+                const hExtraFinal = (totalAcumulado > 189) ? totalAcumulado - 189 : 0;
+
+                resumo.innerHTML = `
+                    <div class="history-summary">
+                        <div class="summary-box">
+                            <span>BASE</span>
+                            <span class="summary-val ${hNormais >= 174 ? 'sum-green' : 'sum-red'}">${formatTime(hNormais)}/174</span>
+                        </div>
+                        <div class="summary-box">
+                            <span>LOTE 15</span>
+                            <span class="summary-val ${hLote15 >= 15 ? 'sum-green' : 'sum-red'}">${formatTime(hLote15)}/15</span>
+                        </div>
+                        <div class="summary-box">
+                            <span>EXTRA</span>
+                            <span class="summary-val ${hExtraFinal > 0 ? 'sum-green' : ''}">${formatTime(hExtraFinal)}</span>
+                        </div>
                     </div>
                 `;
-            }).join('') : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
+            } else { resumo.innerHTML = ""; }
         } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERREUR CONNEXION</div>'; }
     }
 
@@ -360,45 +381,41 @@
     }
 
     async function enviar() {
-        if (!fotoBase64) { alert("⚠️ pas de photo de la carte ⚠️"); return; }
+        if (!fotoBase64) { alert("⚠️ pas de photo ⚠️"); return; }
         const btn = document.getElementById('main-btn');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
-        const desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + (document.getElementById('check-almoco').checked ? mealDuration : 0);
         const payload = {
             data: new Date().toISOString().split('T')[0],
             entrada: toCent(document.getElementById('input-entrada').value), 
             saida: toCent(document.getElementById('input-saida').value),
-            almocoDuracao: desc,
+            almocoDuracao: (document.getElementById('check-pausa').checked ? 0.5 : 0) + (document.getElementById('check-almoco').checked ? mealDuration : 0),
             subAlmoco: document.getElementById('check-almoco').checked ? 1 : 0,
             foto: fotoBase64
         };
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             alert("Succès!"); location.reload();
-        } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
+        } catch (e) { alert("Erreur"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
     }
 
     async function enviarManual() {
-        if (!fotoBase64) { alert("⚠️ pas de photo de la carte ⚠️"); return; }
+        if (!fotoBase64) { alert("⚠️ pas de photo ⚠️"); return; }
         const dataInput = document.getElementById('m-data').value;
-        if (!dataInput) { alert("⚠️ Veuillez sélectionner une date ⚠️"); return; }
+        if (!dataInput) { alert("⚠️ Date? ⚠️"); return; }
         const btn = document.getElementById('btn-manual-submit');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
-        const pausaAtiva = document.getElementById('m-btn-pausa').classList.contains('active-manual');
-        const almocoAtivo = document.getElementById('m-btn-almoco').classList.contains('active-manual');
-        const desc = (pausaAtiva ? 0.5 : 0) + (almocoAtivo ? 1.5 : 0);
         const payload = {
             data: dataInput,
             entrada: toCent(document.getElementById('m-ent').value), 
             saida: toCent(document.getElementById('m-sai').value),
-            almocoDuracao: desc,
-            subAlmoco: almocoAtivo ? 1 : 0,
+            almocoDuracao: (document.getElementById('m-btn-pausa').classList.contains('active-manual') ? 0.5 : 0) + (document.getElementById('m-btn-almoco').classList.contains('active-manual') ? 1.5 : 0),
+            subAlmoco: document.getElementById('m-btn-almoco').classList.contains('active-manual') ? 1 : 0,
             foto: fotoBase64
         };
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("Saisie manuelle enregistrée avec succès!"); location.reload();
-        } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; btn.innerHTML = 'ENREGISTRER'; }
+            alert("Succès!"); location.reload();
+        } catch (e) { alert("Erreur"); btn.disabled = false; btn.innerHTML = 'ENREGISTRER'; }
     }
 
     window.onload = carregar;
