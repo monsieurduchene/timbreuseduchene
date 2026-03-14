@@ -83,15 +83,15 @@
 
         .active-manual { background: var(--icon-active) !important; color: white !important; }
 
-        /* Nova Barra de Resumo */
         .history-summary { 
             background: var(--header-bg); color: white; padding: 15px; border-radius: 15px; 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; font-size: 10px; font-weight: 800; text-align: center;
+            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; font-size: 8px; font-weight: 800; text-align: center;
         }
         .summary-box { display: flex; flex-direction: column; gap: 3px; }
-        .summary-val { font-size: 12px; }
+        .summary-val { font-size: 10px; }
         .sum-red { color: #ff5252; }
         .sum-green { color: #69f0ae; }
+        .sum-repas { color: #fff59d; } /* Amarelo Pastel */
     </style>
 </head>
 <body>
@@ -158,41 +158,23 @@
             <button id="btn-manual-toggle" class="btn-small" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="toggleManualForm()">
                 SAISIE MANUELLE <i class="fa-solid fa-chevron-down"></i>
             </button>
-
             <div id="manual-form" style="display: none; background: var(--card-stats); border-radius: 20px; padding: 15px; margin-top: 15px;">
                 <div style="display: grid; gap: 15px;">
-                    <div style="display: flex; flex-direction: column;">
-                        <label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">DATE</label>
-                        <input type="date" id="m-data" class="time-input" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box; font-size: 14px;">
-                    </div>
-
+                    <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">DATE</label>
+                    <input type="date" id="m-data" class="time-input" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box; font-size: 14px;"></div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div style="display: flex; flex-direction: column;">
-                            <label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">ENTRÉE</label>
-                            <input type="time" id="m-ent" class="time-input" value="07:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;">
-                        </div>
-                        <div style="display: flex; flex-direction: column;">
-                            <label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">SORTIE</label>
-                            <input type="time" id="m-sai" class="time-input" value="00:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;">
-                        </div>
+                        <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">ENTRÉE</label>
+                        <input type="time" id="m-ent" class="time-input" value="07:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;"></div>
+                        <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">SORTIE</label>
+                        <input type="time" id="m-sai" class="time-input" value="00:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;"></div>
                     </div>
-
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="btn-small active-manual" id="m-btn-pausa" onclick="this.classList.toggle('active-manual')" 
-                             style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;">
-                            <i class="fa-solid fa-circle-pause"></i> PAUSE
-                        </div>
-                        <div class="btn-small" id="m-btn-almoco" onclick="this.classList.toggle('active-manual')" 
-                             style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;">
-                            <i class="fa-solid fa-utensils"></i> REPAS
-                        </div>
+                        <div class="btn-small active-manual" id="m-btn-pausa" onclick="this.classList.toggle('active-manual')" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;"><i class="fa-solid fa-circle-pause"></i> PAUSE</div>
+                        <div class="btn-small" id="m-btn-almoco" onclick="this.classList.toggle('active-manual')" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;"><i class="fa-solid fa-utensils"></i> REPAS</div>
                     </div>
-
                     <div style="display: grid; grid-template-columns: 1fr 4fr; gap: 15px; align-items: stretch;">
                         <button class="btn-foto" style="height: 40px; border-radius: 12px; font-size: 16px;" onclick="document.getElementById('file-input-manual').click()"><i class="fa-solid fa-camera"></i></button>
-                        <button id="btn-manual-submit" class="btn-small" onclick="enviarManual()" style="background: var(--icon-active); color: white; height: 40px; width: 100%;">
-                            ENREGISTRER
-                        </button>
+                        <button id="btn-manual-submit" class="btn-small" onclick="enviarManual()" style="background: var(--icon-active); color: white; height: 40px; width: 100%;">ENREGISTRER</button>
                         <input type="file" id="file-input-manual" accept="image/*" style="display:none;" onchange="processarFoto(this, 'preview-foto-manual')">
                     </div>
                     <img id="preview-foto-manual">
@@ -215,7 +197,7 @@
     </div>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxLc3H1y91vfVs5WhAiD4RddllfSRJY0J0SVgH3BIwUSUG5f7Ra5iqLvxcLLQ-QAtm-/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycybyf_wJ027tQQRw32y0QHY7qE9qTC6ruqBDr7LHqcr_tM8lFYBu_Z-lqmtvZHS1vStpR/exec";
     
     let acumuladoMes = 0; let totalAlmocos = 0; let mealDuration = 1.5; let fotoBase64 = "";
 
@@ -231,11 +213,7 @@
             statusEl.innerText = "SYNCHRONISÉ";
             statusEl.style.color = "var(--color-done)";
             calc();
-        } catch(e) { 
-            statusEl.innerText = "HORS LIGNE"; 
-            statusEl.style.color = "var(--color-pending)";
-            calc(); 
-        }
+        } catch(e) { statusEl.innerText = "HORS LIGNE"; statusEl.style.color = "var(--color-pending)"; calc(); }
     }
 
     function toggleManualForm() {
@@ -305,120 +283,4 @@
         document.getElementById('bar-15').style.backgroundColor = totalGeral >= 189 ? "var(--color-done)" : "var(--color-pending)";
         document.getElementById('txt-15').innerText = formatTime(extra);
         let isTodayAlmoco = document.getElementById('check-almoco').checked ? 1 : 0;
-        document.getElementById('txt-dinner').innerText = totalAlmocos + isTodayAlmoco;
-        document.getElementById('bar-dinner').style.width = Math.min(100, ((totalAlmocos + isTodayAlmoco)/22)*100) + "%";
-    }
-
-    async function consultarMes() {
-        const mes = document.getElementById('select-mes').value;
-        const lista = document.getElementById('lista-historico');
-        const resumo = document.getElementById('historico-resumo');
-        if(!mes) { lista.innerHTML = ""; resumo.innerHTML = ""; return; }
-        lista.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:11px;">CHARGEMENT...</div>';
-        try {
-            const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`, { mode: 'cors' });
-            const logs = await res.json();
-            
-            let totalAcumulado = 0;
-            let listaHTML = logs.map(log => {
-                const totalDia = parseFloat(log.total) || 0;
-                totalAcumulado += totalDia;
-                const totalF = formatTime(totalDia);
-                let extraDiv = '-';
-                if (!isNaN(log.extra) && parseFloat(log.extra) > 0) {
-                    extraDiv = `<span class="h-extra">+${formatTime(parseFloat(log.extra))}</span>`;
-                }
-                return `<div class="history-item"><span>${log.data}</span><span class="h-total">${totalF}</span><span class="h-extra">${extraDiv}</span></div>`;
-            }).join('');
-
-            lista.innerHTML = logs.length ? listaHTML : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
-
-            // Cálculo da Barra de Resumo
-            if (logs.length) {
-                const hNormais = Math.min(totalAcumulado, 174);
-                const hLote15 = (totalAcumulado > 174) ? Math.min(15, totalAcumulado - 174) : 0;
-                const hExtraFinal = (totalAcumulado > 189) ? totalAcumulado - 189 : 0;
-
-                resumo.innerHTML = `
-                    <div class="history-summary">
-                        <div class="summary-box">
-                            <span>BASE</span>
-                            <span class="summary-val ${hNormais >= 174 ? 'sum-green' : 'sum-red'}">${formatTime(hNormais)}/174</span>
-                        </div>
-                        <div class="summary-box">
-                            <span>LOTE 15</span>
-                            <span class="summary-val ${hLote15 >= 15 ? 'sum-green' : 'sum-red'}">${formatTime(hLote15)}/15</span>
-                        </div>
-                        <div class="summary-box">
-                            <span>EXTRA</span>
-                            <span class="summary-val ${hExtraFinal > 0 ? 'sum-green' : ''}">${formatTime(hExtraFinal)}</span>
-                        </div>
-                    </div>
-                `;
-            } else { resumo.innerHTML = ""; }
-        } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERREUR CONNEXION</div>'; }
-    }
-
-    function processarFoto(input, previewId) {
-        const file = input.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                const scaleSize = MAX_WIDTH / img.width;
-                canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                document.getElementById(previewId).src = fotoBase64;
-                document.getElementById(previewId).style.display = "block";
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-
-    async function enviar() {
-        if (!fotoBase64) { alert("⚠️ pas de photo ⚠️"); return; }
-        const btn = document.getElementById('main-btn');
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
-        const payload = {
-            data: new Date().toISOString().split('T')[0],
-            entrada: toCent(document.getElementById('input-entrada').value), 
-            saida: toCent(document.getElementById('input-saida').value),
-            almocoDuracao: (document.getElementById('check-pausa').checked ? 0.5 : 0) + (document.getElementById('check-almoco').checked ? mealDuration : 0),
-            subAlmoco: document.getElementById('check-almoco').checked ? 1 : 0,
-            foto: fotoBase64
-        };
-        try {
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("Succès!"); location.reload();
-        } catch (e) { alert("Erreur"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
-    }
-
-    async function enviarManual() {
-        if (!fotoBase64) { alert("⚠️ pas de photo ⚠️"); return; }
-        const dataInput = document.getElementById('m-data').value;
-        if (!dataInput) { alert("⚠️ Date? ⚠️"); return; }
-        const btn = document.getElementById('btn-manual-submit');
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
-        const payload = {
-            data: dataInput,
-            entrada: toCent(document.getElementById('m-ent').value), 
-            saida: toCent(document.getElementById('m-sai').value),
-            almocoDuracao: (document.getElementById('m-btn-pausa').classList.contains('active-manual') ? 0.5 : 0) + (document.getElementById('m-btn-almoco').classList.contains('active-manual') ? 1.5 : 0),
-            subAlmoco: document.getElementById('m-btn-almoco').classList.contains('active-manual') ? 1 : 0,
-            foto: fotoBase64
-        };
-        try {
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("Succès!"); location.reload();
-        } catch (e) { alert("Erreur"); btn.disabled = false; btn.innerHTML = 'ENREGISTRER'; }
-    }
-
-    window.onload = carregar;
-</script>
-</body>
-</html>
+        document.getElementById('txt-dinner').innerText = totalAlmocos
