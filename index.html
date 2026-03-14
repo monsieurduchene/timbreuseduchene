@@ -37,25 +37,27 @@
         .grid-small { grid-template-columns: 1fr 1fr; }
         .grid-action { grid-template-columns: 1fr 4fr; align-items: stretch; }
 
+        .grid-20-80 { display: grid; grid-template-columns: 1fr 4fr; gap: 15px; margin-bottom: var(--gap-main); }
+
         .btn-card { border-radius: 20px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; position: relative; transition: all 0.2s ease; }
         .btn-card.time { background: var(--card-ponto); padding: 10px; box-sizing: border-box; }
         .btn-card.time i { color: var(--icon-active); opacity: 1; margin-bottom: 5px; }
 
         .time-input { border: none; background: transparent; font-size: 16px; font-weight: 800; color: var(--text); font-family: inherit; width: 100%; text-align: center; display: flex; justify-content: center; appearance: none; -webkit-appearance: none; }
 
-        .btn-card.toggle { background: var(--card-toggle); cursor: pointer; }
-        .btn-card i { font-size: 24px; color: var(--text-secondary); opacity: 0.7; pointer-events: none; }
-        .toggle.active i { color: var(--icon-active); opacity: 1; }
-        .toggle.inactive { opacity: 0.4; filter: grayscale(1); }
+        .btn-card.toggle { background: var(--card-toggle); cursor: pointer; opacity: 0.4; filter: grayscale(1); }
+        .btn-card.toggle.active { opacity: 1; filter: grayscale(0); }
+        
+        .btn-card i { font-size: 24px; color: var(--text-secondary); pointer-events: none; }
+        .toggle.active i { color: var(--icon-active); }
 
         .btn-small { height: 35px; border-radius: 12px; background: var(--card-ponto); border: none; color: var(--text-secondary); font-weight: bold; font-size: 11px; text-transform: uppercase; cursor: pointer; }
 
         .btn-foto { width: 100%; background: var(--btn-foto); color: #fafafa; border: none; border-radius: 20px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-submit { width: 100%; background: var(--btn-submit); color: #fafafa; border: none; padding: 25px; border-radius: 20px; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         
-        #preview-foto, #preview-foto-manual { width: 100%; border-radius: 20px; display: none; margin-bottom: var(--gap-main); object-fit: cover; }
+        #preview-foto { width: 100%; border-radius: 20px; display: none; margin-bottom: var(--gap-main); object-fit: cover; }
 
-        /* BLOCO DAS HORAS */
         .stats-container { background: var(--card-stats); border-radius: 20px; padding: 20px; margin-bottom: var(--gap-main); }
         .month-label { font-size: 10px; font-weight: 900; color: var(--text-secondary); text-align: center; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.6; }
         .progress-label { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: 800; color: #9e9e9e; text-transform: uppercase; }
@@ -66,34 +68,18 @@
         .meal-opt.active { background: var(--icon-active); color: #ffffff; }
 
         .history-section { margin-top: 10px; text-align: center; }
-        .history-title { 
-            font-family: 'Lexend Giga', sans-serif; font-size: 14px; margin-bottom: 15px; 
-            display: block; width: 100%; background: var(--header-bg); color: #ffffff; 
-            padding: 12px 0; border-radius: 20px; text-transform: uppercase;
-        }
-
-        .select-mes { 
-            width: 100%; height: 35px; border-radius: 12px; border: none; 
-            background: var(--card-ponto); font-weight: bold; color: var(--text-secondary);
-            font-size: 11px; margin-bottom: 15px; text-transform: uppercase;
-            text-align: center; text-align-last: center; appearance: none; cursor: pointer;
-        }
+        .history-title { font-family: 'Lexend Giga', sans-serif; font-size: 14px; margin-bottom: 15px; display: block; width: 100%; background: var(--header-bg); color: #ffffff; padding: 12px 0; border-radius: 20px; text-transform: uppercase; }
+        .select-mes { width: 100%; height: 35px; border-radius: 12px; border: none; background: var(--card-ponto); font-weight: bold; color: var(--text-secondary); font-size: 11px; margin-bottom: 15px; text-transform: uppercase; text-align: center; text-align-last: center; appearance: none; cursor: pointer; }
         .history-list { display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 15px; }
         .history-item { display: grid; grid-template-columns: 2fr 1fr 1fr; background: var(--card-ponto); padding: 12px 15px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .h-extra { color: var(--color-done); text-align: right; }
-        .h-total { text-align: center; }
-
-        .active-manual { background: var(--icon-active) !important; color: white !important; }
-
-        .history-summary { 
-            background: var(--header-bg); color: white; padding: 15px; border-radius: 15px; 
-            display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; font-size: 8px; font-weight: 800; text-align: center;
-        }
+        
+        .history-summary { background: var(--header-bg); color: white; padding: 15px; border-radius: 15px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; font-size: 8px; font-weight: 800; text-align: center; }
         .summary-box { display: flex; flex-direction: column; gap: 3px; }
         .summary-val { font-size: 10px; }
         .sum-red { color: #ff5252; }
         .sum-green { color: #69f0ae; }
-        .sum-repas { color: #fff59d; }
+        .sum-repas { color: #fff59d; } 
     </style>
 </head>
 <body>
@@ -118,17 +104,18 @@
             </div>
         </div>
 
-        <div class="grid-2x2">
+        <div class="grid-20-80">
             <div class="btn-card toggle active" id="card-pausa" onclick="toggleSimple('check-pausa', 'card-pausa')">
                 <i class="fa-solid fa-circle-pause"></i>
                 <input type="checkbox" id="check-pausa" style="display:none" checked onchange="calc()">
             </div>
-            <div class="btn-card toggle inactive" id="card-almoco">
-                <div style="height:70%; width:100%; display:flex; align-items:center; justify-content:center" onclick="toggleMeal()">
+            
+            <div class="btn-card toggle" id="card-almoco">
+                <div style="height:65%; width:100%; display:flex; align-items:center; justify-content:center" onclick="toggleMeal()">
                     <i class="fa-solid fa-utensils"></i>
                     <input type="checkbox" id="check-almoco" style="display:none" onchange="calc()">
                 </div>
-                <div style="height:30%; width:100%; display:flex; border-top:1px solid rgba(0,0,0,0.05)">
+                <div style="height:35%; width:100%; display:flex; border-top:1px solid rgba(0,0,0,0.05)">
                     <div class="meal-opt" id="opt-1" onclick="setMealTime(1)">1H</div>
                     <div class="meal-opt active" id="opt-15" onclick="setMealTime(1.5)">1H30</div>
                 </div>
@@ -149,43 +136,12 @@
 
         <div class="stats-container">
             <div id="txt-mes-atual" class="month-label">---</div>
-            
             <div class="progress-label"><span>BASE (174h)</span><span id="txt-base">0h00m</span></div>
             <div class="bar-bg"><div id="bar-base" class="bar-fill"></div></div>
-            
             <div class="progress-label"><span>SUPPLÉM. (+15h)</span><span id="txt-15">0h00m</span></div>
             <div class="bar-bg"><div id="bar-15" class="bar-fill"></div></div>
-            
             <div class="progress-label"><span>REPAS</span><span id="txt-dinner">0</span></div>
             <div class="bar-bg"><div id="bar-dinner" class="bar-fill" style="background-color: var(--btn-foto);"></div></div>
-        </div>
-
-        <div class="manual-section" style="margin-bottom: var(--gap-main);">
-            <button id="btn-manual-toggle" class="btn-small" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="toggleManualForm()">
-                SAISIE MANUELLE <i class="fa-solid fa-chevron-down"></i>
-            </button>
-            <div id="manual-form" style="display: none; background: var(--card-stats); border-radius: 20px; padding: 15px; margin-top: 15px;">
-                <div style="display: grid; gap: 15px;">
-                    <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">DATE</label>
-                    <input type="date" id="m-data" class="time-input" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box; font-size: 14px;"></div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">ENTRÉE</label>
-                        <input type="time" id="m-ent" class="time-input" value="07:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;"></div>
-                        <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">SORTIE</label>
-                        <input type="time" id="m-sai" class="time-input" value="00:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;"></div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="btn-small active-manual" id="m-btn-pausa" onclick="this.classList.toggle('active-manual')" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;"><i class="fa-solid fa-circle-pause"></i> PAUSE</div>
-                        <div class="btn-small" id="m-btn-almoco" onclick="this.classList.toggle('active-manual')" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;"><i class="fa-solid fa-utensils"></i> REPAS</div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 4fr; gap: 15px; align-items: stretch;">
-                        <button class="btn-foto" style="height: 40px; border-radius: 12px; font-size: 16px;" onclick="document.getElementById('file-input-manual').click()"><i class="fa-solid fa-camera"></i></button>
-                        <button id="btn-manual-submit" class="btn-small" onclick="enviarManual()" style="background: var(--icon-active); color: white; height: 40px; width: 100%;">ENREGISTRER</button>
-                        <input type="file" id="file-input-manual" accept="image/*" style="display:none;" onchange="processarFoto(this, 'preview-foto-manual')">
-                    </div>
-                    <img id="preview-foto-manual">
-                </div>
-            </div>
         </div>
 
         <div class="history-section">
@@ -208,10 +164,8 @@
     let acumuladoMes = 0; let totalAlmocos = 0; let mealDuration = 1.5; let fotoBase64 = "";
 
     async function carregar() {
-        // Definir o título do mês atual
         const mesesF = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         document.getElementById('txt-mes-atual').innerText = mesesF[new Date().getMonth()];
-
         document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "07:00";
         document.getElementById('input-saida').value = localStorage.getItem('p_sai') || "00:00";
         const statusEl = document.getElementById('sync-status');
@@ -220,18 +174,9 @@
             const data = await res.json();
             acumuladoMes = parseFloat(data.acumulado || 0);
             totalAlmocos = parseInt(data.almocos || 0);
-            statusEl.innerText = "SYNCHRONISÉ";
-            statusEl.style.color = "var(--color-done)";
+            statusEl.innerText = "SYNCHRONISÉ"; statusEl.style.color = "var(--color-done)";
             calc();
-        } catch(e) { statusEl.innerText = "HORS LIGNE"; statusEl.style.color = "var(--color-pending)"; calc(); }
-    }
-
-    function toggleManualForm() {
-        const form = document.getElementById('manual-form');
-        const btn = document.getElementById('btn-manual-toggle');
-        const icon = btn.querySelector('i');
-        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
-        icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up');
+        } catch(e) { statusEl.innerText = "HORS LIGNE"; calc(); }
     }
 
     function toggleSimple(checkId, cardId) {
@@ -246,8 +191,12 @@
         const cb = document.getElementById('check-almoco');
         const card = document.getElementById('card-almoco');
         cb.checked = !cb.checked;
-        if (cb.checked) { card.classList.replace('inactive', 'active'); setMealTime(1); } 
-        else { card.classList.replace('active', 'inactive'); setMealTime(1.5); }
+        if (cb.checked) {
+            card.classList.add('active');
+            setMealTime(1); // Força 1h ao ativar
+        } else {
+            card.classList.remove('active');
+        }
         calc();
     }
 
@@ -255,6 +204,11 @@
         mealDuration = val;
         document.getElementById('opt-1').classList.toggle('active', val === 1);
         document.getElementById('opt-15').classList.toggle('active', val === 1.5);
+        const cb = document.getElementById('check-almoco');
+        if (!cb.checked) {
+            cb.checked = true;
+            document.getElementById('card-almoco').classList.add('active');
+        }
         calc();
     }
 
@@ -280,9 +234,8 @@
         let sai = toCent(document.getElementById('input-saida').value);
         let descPausa = document.getElementById('check-pausa').checked ? 0.5 : 0;
         let descAlmoco = document.getElementById('check-almoco').checked ? mealDuration : 0;
-        let totalDescontos = descPausa + descAlmoco;
         if (sai < ent && sai !== 0) sai += 24;
-        let hoje = (sai > ent) ? Math.max(0, sai - ent - totalDescontos) : 0;
+        let hoje = (sai > ent) ? Math.max(0, sai - ent - (descPausa + descAlmoco)) : 0;
         let totalGeral = acumuladoMes + hoje;
         let base = Math.min(totalGeral, 174);
         document.getElementById('bar-base').style.width = (base/174)*100 + "%";
@@ -301,42 +254,31 @@
         const mes = document.getElementById('select-mes').value;
         const lista = document.getElementById('lista-historico');
         const resumo = document.getElementById('historico-resumo');
-        if(!mes) { lista.innerHTML = ""; resumo.innerHTML = ""; return; }
+        if(!mes) return;
         lista.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:11px;">CHARGEMENT...</div>';
         try {
-            const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`, { mode: 'cors' });
+            const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}`, { mode: 'cors' });
             const logs = await res.json();
-            
-            let totalAcumulado = 0;
-            let totalRepasMes = 0;
+            let totalAcumulado = 0; let totalRepasMes = 0;
             let listaHTML = logs.map(log => {
-                const totalDia = parseFloat(log.total) || 0;
-                totalAcumulado += totalDia;
+                totalAcumulado += parseFloat(log.total) || 0;
                 if(log.repas == 1 || log.subAlmoco == 1) totalRepasMes++;
-                const totalF = formatTime(totalDia);
-                let extraDiv = '-';
-                if (!isNaN(log.extra) && parseFloat(log.extra) > 0) {
-                    extraDiv = `<span class="h-extra">+${formatTime(parseFloat(log.extra))}</span>`;
-                }
-                return `<div class="history-item"><span>${log.data}</span><span class="h-total">${totalF}</span><span class="h-extra">${extraDiv}</span></div>`;
+                let extraDiv = (parseFloat(log.extra) > 0) ? `<span class="h-extra">+${formatTime(parseFloat(log.extra))}</span>` : '-';
+                return `<div class="history-item"><span>${log.data}</span><span style="text-align:center">${formatTime(parseFloat(log.total))}</span><span class="h-extra">${extraDiv}</span></div>`;
             }).join('');
-
-            lista.innerHTML = logs.length ? listaHTML : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
-
+            lista.innerHTML = logs.length ? listaHTML : '<div style="text-align:center;">AUCUNE DONNÉE</div>';
             if (logs.length) {
                 const hNormais = Math.min(totalAcumulado, 174);
                 const hSupp = (totalAcumulado > 174) ? Math.min(15, totalAcumulado - 174) : 0;
                 const hExtraFinal = (totalAcumulado > 189) ? totalAcumulado - 189 : 0;
-                resumo.innerHTML = `
-                    <div class="history-summary">
-                        <div class="summary-box"><span>BASE</span><span class="summary-val ${hNormais >= 174 ? 'sum-green' : 'sum-red'}">${formatTime(hNormais)}</span></div>
-                        <div class="summary-box"><span>SUPPLÉM.</span><span class="summary-val ${hSupp >= 15 ? 'sum-green' : 'sum-red'}">${formatTime(hSupp)}</span></div>
-                        <div class="summary-box"><span>EXTRA</span><span class="summary-val ${hExtraFinal > 0 ? 'sum-green' : ''}">${formatTime(hExtraFinal)}</span></div>
-                        <div class="summary-box"><span>REPAS</span><span class="summary-val sum-repas">${totalRepasMes}</span></div>
-                    </div>
-                `;
-            } else { resumo.innerHTML = ""; }
-        } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERREUR...</div>'; }
+                resumo.innerHTML = `<div class="history-summary">
+                    <div class="summary-box"><span>BASE</span><span class="summary-val ${hNormais >= 174 ? 'sum-green' : 'sum-red'}">${formatTime(hNormais)}</span></div>
+                    <div class="summary-box"><span>SUPPLÉM.</span><span class="summary-val ${hSupp >= 15 ? 'sum-green' : 'sum-red'}">${formatTime(hSupp)}</span></div>
+                    <div class="summary-box"><span>EXTRA</span><span class="summary-val">${formatTime(hExtraFinal)}</span></div>
+                    <div class="summary-box"><span>REPAS</span><span class="summary-val sum-repas">${totalRepasMes}</span></div>
+                </div>`;
+            }
+        } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red;">ERREUR</div>'; }
     }
 
     function processarFoto(input, previewId) {
@@ -346,24 +288,19 @@
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                const scaleSize = MAX_WIDTH / img.width;
+                const MAX_WIDTH = 800; const scaleSize = MAX_WIDTH / img.width;
                 canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
                 document.getElementById(previewId).src = fotoBase64;
                 document.getElementById(previewId).style.display = "block";
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+            }; img.src = e.target.result;
+        }; reader.readAsDataURL(file);
     }
 
     async function enviar() {
-        if (!fotoBase64) { alert("⚠️ pas de foto ⚠️"); return; }
-        const btn = document.getElementById('main-btn');
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+        if (!fotoBase64) { alert("⚠️ photo? ⚠️"); return; }
+        const btn = document.getElementById('main-btn'); btn.disabled = true;
         const payload = {
             data: new Date().toISOString().split('T')[0],
             entrada: toCent(document.getElementById('input-entrada').value), 
@@ -375,27 +312,7 @@
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             alert("Succès!"); location.reload();
-        } catch (e) { alert("Erreur"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
-    }
-
-    async function enviarManual() {
-        if (!fotoBase64) { alert("⚠️ pas de foto ⚠️"); return; }
-        const dataInput = document.getElementById('m-data').value;
-        if (!dataInput) { alert("⚠️ Date? ⚠️"); return; }
-        const btn = document.getElementById('btn-manual-submit');
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
-        const payload = {
-            data: dataInput,
-            entrada: toCent(document.getElementById('m-ent').value), 
-            saida: toCent(document.getElementById('m-sai').value),
-            almocoDuracao: (document.getElementById('m-btn-pausa').classList.contains('active-manual') ? 0.5 : 0) + (document.getElementById('m-btn-almoco').classList.contains('active-manual') ? 1.5 : 0),
-            subAlmoco: document.getElementById('m-btn-almoco').classList.contains('active-manual') ? 1 : 0,
-            foto: fotoBase64
-        };
-        try {
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert("Succès!"); location.reload();
-        } catch (e) { alert("Erreur"); btn.disabled = false; btn.innerHTML = 'ENREGISTRER'; }
+        } catch (e) { alert("Erreur"); btn.disabled = false; }
     }
 
     window.onload = carregar;
