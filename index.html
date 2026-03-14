@@ -153,17 +153,17 @@
                 <div style="display: grid; gap: 15px;">
                     <div style="display: flex; flex-direction: column;">
                         <label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">DATE</label>
-                        <input type="date" id="m-data" class="time-input" style="background: var(--bg); border-radius: 10px; padding: 8px; font-size: 14px;">
+                        <input type="date" id="m-data" class="time-input" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box; font-size: 14px;">
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div style="display: flex; flex-direction: column;">
                             <label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">ENTRÉE</label>
-                            <input type="time" id="m-ent" class="time-input" style="background: var(--bg); border-radius: 10px; padding: 8px;">
+                            <input type="time" id="m-ent" class="time-input" value="07:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;">
                         </div>
                         <div style="display: flex; flex-direction: column;">
                             <label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">SORTIE</label>
-                            <input type="time" id="m-sai" class="time-input" value="00:00" style="background: var(--bg); border-radius: 10px; padding: 8px;">
+                            <input type="time" id="m-sai" class="time-input" value="00:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;">
                         </div>
                     </div>
 
@@ -199,7 +199,7 @@
     </div>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyf_wJ027tQQRw32y0QHY7qE9qTC6ruqBDr7LHqcr_tM8lFYBu_Z-lqmtvZHSlvStpR/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycybyf_wJ027tQQRw32y0QHY7qE9qTC6ruqBDr7LHqcr_tM8lFYBu_Z-lqmtvZHS1vStpR/exec";
     
     let acumuladoMes = 0; let totalAlmocos = 0; let mealDuration = 1.5; let fotoBase64 = "";
 
@@ -277,93 +277,4 @@
         return hrs + "h" + (mins < 10 ? "0" : "") + mins;
     }
 
-    function calc() {
-        let ent = toCent(document.getElementById('input-entrada').value);
-        let sai = toCent(document.getElementById('input-saida').value);
-        let descPausa = document.getElementById('check-pausa').checked ? 0.5 : 0;
-        let descAlmoco = document.getElementById('check-almoco').checked ? mealDuration : 0;
-        let totalDescontos = descPausa + descAlmoco;
-
-        if (sai < ent && sai !== 0) sai += 24;
-        let hoje = (sai > ent) ? Math.max(0, sai - ent - totalDescontos) : 0;
-        let totalGeral = acumuladoMes + hoje;
-        
-        let base = Math.min(totalGeral, 174);
-        document.getElementById('bar-base').style.width = (base/174)*100 + "%";
-        document.getElementById('bar-base').style.backgroundColor = totalGeral >= 174 ? "var(--color-done)" : "var(--color-pending)";
-        document.getElementById('txt-base').innerText = formatTime(base);
-
-        let extra = totalGeral > 174 ? Math.min(15, totalGeral - 174) : 0;
-        document.getElementById('bar-15').style.width = (extra/15)*100 + "%";
-        document.getElementById('bar-15').style.backgroundColor = totalGeral >= 189 ? "var(--color-done)" : "var(--color-pending)";
-        document.getElementById('txt-15').innerText = formatTime(extra);
-
-        let isTodayAlmoco = document.getElementById('check-almoco').checked ? 1 : 0;
-        document.getElementById('txt-dinner').innerText = totalAlmocos + isTodayAlmoco;
-        document.getElementById('bar-dinner').style.width = Math.min(100, ((totalAlmocos + isTodayAlmoco)/22)*100) + "%";
-    }
-
-    async function consultarMes() {
-        const mes = document.getElementById('select-mes').value;
-        const lista = document.getElementById('lista-historico');
-        if(!mes) { lista.innerHTML = ""; return; }
-        lista.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:11px;">CHARGEMENT...</div>';
-        try {
-            const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`, { mode: 'cors' });
-            const logs = await res.json();
-            lista.innerHTML = logs.length ? logs.map(log => `
-                <div class="history-item">
-                    <span>${log.data}</span>
-                    <span class="h-total">${isNaN(log.total) ? '0.00' : log.total}h</span>
-                    <span class="h-extra">${(!isNaN(log.extra) && parseFloat(log.extra) > 0) ? '+'+log.extra+'h' : '-'}</span>
-                </div>
-            `).join('') : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
-        } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERREUR CONNEXION</div>'; }
-    }
-
-    function processarFoto(input) {
-        const file = input.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                const scaleSize = MAX_WIDTH / img.width;
-                canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                document.getElementById('preview-foto').src = fotoBase64;
-                document.getElementById('preview-foto').style.display = "block";
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-
-    async function enviar() {
-        if (!fotoBase64) {
-            alert("⚠️ pas de photo de la carte ⚠️");
-            return;
-        }
-        const btn = document.getElementById('main-btn');
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
-        const payload = {
-            data: new Date().toISOString().split('T')[0],
-            entrada: toCent(document.getElementById('input-entrada').value), 
-            saida: toCent(document.getElementById('input-saida').value),
-            almocoDuracao: (document.getElementById('check-pausa').checked ? 0.5 : 0) + (document.getElementById('check-almoco').checked ? mealDuration : 0),
-            subAlmoco: document.getElementById('check-almoco').checked ? 1 : 0,
-            foto: fotoBase64
-        };
-        try {
-            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            localStorage.removeItem('p_ent'); localStorage.removeItem('p_sai');
-            alert("Succès!"); location.reload();
-        } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
-    }
-    window.onload = carregar;
-</script>
-</body>
-</html>
+    function calc
