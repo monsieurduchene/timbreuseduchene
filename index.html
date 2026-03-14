@@ -53,7 +53,7 @@
         .btn-foto { width: 100%; background: var(--btn-foto); color: #fafafa; border: none; border-radius: 20px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-submit { width: 100%; background: var(--btn-submit); color: #fafafa; border: none; padding: 25px; border-radius: 20px; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         
-        #preview-foto { width: 100%; border-radius: 20px; display: none; margin-bottom: var(--gap-main); object-fit: cover; }
+        #preview-foto, #preview-foto-manual { width: 100%; border-radius: 20px; display: none; margin-bottom: var(--gap-main); object-fit: cover; }
 
         .stats-container { background: var(--card-stats); border-radius: 20px; padding: 20px; margin-bottom: var(--gap-main); }
         .progress-label { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: 800; color: #9e9e9e; text-transform: uppercase; }
@@ -131,7 +131,7 @@
         <div class="grid-action">
             <button class="btn-foto" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-camera"></i></button>
             <button class="btn-submit" id="main-btn" onclick="enviar()"><i class="fa-solid fa-cloud-arrow-up"></i></button>
-            <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="processarFoto(this)">
+            <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="processarFoto(this, 'preview-foto')">
         </div>
         <img id="preview-foto">
 
@@ -168,7 +168,7 @@
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="btn-small" id="m-btn-pausa" onclick="this.classList.toggle('active-manual')" 
+                        <div class="btn-small active-manual" id="m-btn-pausa" onclick="this.classList.toggle('active-manual')" 
                              style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;">
                             <i class="fa-solid fa-circle-pause"></i> PAUSE
                         </div>
@@ -178,9 +178,14 @@
                         </div>
                     </div>
 
-                    <button class="btn-small" style="background: var(--icon-active); color: white; height: 40px; width: 100%;">
-                        ENREGISTRER DANS L'HISTORIQUE
-                    </button>
+                    <div style="display: grid; grid-template-columns: 1fr 4fr; gap: 15px; align-items: stretch;">
+                        <button class="btn-foto" style="height: 40px; border-radius: 12px; font-size: 16px;" onclick="document.getElementById('file-input-manual').click()"><i class="fa-solid fa-camera"></i></button>
+                        <button id="btn-manual-submit" class="btn-small" onclick="enviarManual()" style="background: var(--icon-active); color: white; height: 40px; width: 100%;">
+                            ENREGISTRER
+                        </button>
+                        <input type="file" id="file-input-manual" accept="image/*" style="display:none;" onchange="processarFoto(this, 'preview-foto-manual')">
+                    </div>
+                    <img id="preview-foto-manual">
                 </div>
             </div>
         </div>
@@ -227,7 +232,6 @@
         const form = document.getElementById('manual-form');
         const btn = document.getElementById('btn-manual-toggle');
         const icon = btn.querySelector('i');
-
         if (form.style.display === 'none' || form.style.display === '') {
             form.style.display = 'block';
             icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
@@ -317,17 +321,24 @@
         try {
             const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`, { mode: 'cors' });
             const logs = await res.json();
-            lista.innerHTML = logs.length ? logs.map(log => `
-                <div class="history-item">
-                    <span>${log.data}</span>
-                    <span class="h-total">${isNaN(log.total) ? '0.00' : log.total}h</span>
-                    <span class="h-extra">${(!isNaN(log.extra) && parseFloat(log.extra) > 0) ? '+'+log.extra+'h' : '-'}</span>
-                </div>
-            `).join('') : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
+            lista.innerHTML = logs.length ? logs.map(log => {
+                const totalF = !isNaN(log.total) ? formatTime(parseFloat(log.total)) : '0h00m';
+                let extraDiv = '-';
+                if (!isNaN(log.extra) && parseFloat(log.extra) > 0) {
+                    extraDiv = `<span class="h-extra">+${formatTime(parseFloat(log.extra))}</span>`;
+                }
+                return `
+                    <div class="history-item">
+                        <span>${log.data}</span>
+                        <span class="h-total">${totalF}</span>
+                        <span class="h-extra">${extraDiv}</span>
+                    </div>
+                `;
+            }).join('') : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
         } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERREUR CONNEXION</div>'; }
     }
 
-    function processarFoto(input) {
+    function processarFoto(input, previewId) {
         const file = input.files[0]; if(!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -340,8 +351,8 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                document.getElementById('preview-foto').src = fotoBase64;
-                document.getElementById('preview-foto').style.display = "block";
+                document.getElementById(previewId).src = fotoBase64;
+                document.getElementById(previewId).style.display = "block";
             };
             img.src = e.target.result;
         };
@@ -349,16 +360,10 @@
     }
 
     async function enviar() {
-        if (!fotoBase64) {
-            alert("⚠️ pas de photo de la carte ⚠️");
-            return;
-        }
-
+        if (!fotoBase64) { alert("⚠️ pas de photo de la carte ⚠️"); return; }
         const btn = document.getElementById('main-btn');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
-        const desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
-                     (document.getElementById('check-almoco').checked ? mealDuration : 0);
-        
+        const desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + (document.getElementById('check-almoco').checked ? mealDuration : 0);
         const payload = {
             data: new Date().toISOString().split('T')[0],
             entrada: toCent(document.getElementById('input-entrada').value), 
@@ -367,13 +372,35 @@
             subAlmoco: document.getElementById('check-almoco').checked ? 1 : 0,
             foto: fotoBase64
         };
-        
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            localStorage.removeItem('p_ent'); localStorage.removeItem('p_sai');
             alert("Succès!"); location.reload();
         } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
     }
+
+    async function enviarManual() {
+        if (!fotoBase64) { alert("⚠️ pas de photo de la carte ⚠️"); return; }
+        const dataInput = document.getElementById('m-data').value;
+        if (!dataInput) { alert("⚠️ Veuillez sélectionner une date ⚠️"); return; }
+        const btn = document.getElementById('btn-manual-submit');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
+        const pausaAtiva = document.getElementById('m-btn-pausa').classList.contains('active-manual');
+        const almocoAtivo = document.getElementById('m-btn-almoco').classList.contains('active-manual');
+        const desc = (pausaAtiva ? 0.5 : 0) + (almocoAtivo ? 1.5 : 0);
+        const payload = {
+            data: dataInput,
+            entrada: toCent(document.getElementById('m-ent').value), 
+            saida: toCent(document.getElementById('m-sai').value),
+            almocoDuracao: desc,
+            subAlmoco: almocoAtivo ? 1 : 0,
+            foto: fotoBase64
+        };
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert("Saisie manuelle enregistrée avec succès!"); location.reload();
+        } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; btn.innerHTML = 'ENREGISTRER'; }
+    }
+
     window.onload = carregar;
 </script>
 </body>
