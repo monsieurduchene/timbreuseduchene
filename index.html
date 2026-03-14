@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="fr-CH">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -14,13 +14,19 @@
             --card-ponto: #f5f5f5; --card-toggle: #e0e0e0; --card-stats: #eeeeee; 
             --btn-foto: #bdbdbd; --btn-submit: #9e9e9e; --text: #212121; 
             --text-secondary: #757575; --icon-active: #424242; --bar-bg: #e0e0e0;
-            --color-pending: #d32f2f; --color-done: #388e3c; --gap-main: 20px; 
+            --color-pending: #d32f2f; --color-done: #388e3c; 
+            --gap-main: 15px; 
         }
         
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; color: var(--text); -webkit-tap-highlight-color: transparent; }
         
-        header { background: var(--header-bg); color: var(--header-text); padding: 50px 15px; margin-bottom: var(--gap-main); text-align: center; }
-        .header-title { font-family: 'Lexend Giga', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -1.5px; text-transform: uppercase; line-height: 1; }
+        header { 
+            background: var(--header-bg); color: var(--header-text); padding: 40px 15px; 
+            margin-bottom: var(--gap-main); text-align: center; 
+            border-radius: 0 0 20px 20px; width: 100%; box-sizing: border-box;
+        }
+        
+        .header-title { font-family: 'Lexend Giga', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -1.5px; text-transform: uppercase; line-height: 1; }
         
         #sync-status { display: block; font-size: 10px; font-weight: 900; margin-top: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-secondary); transition: color 0.3s ease; }
 
@@ -49,7 +55,7 @@
         
         #preview-foto { width: 100%; border-radius: 20px; display: none; margin-bottom: var(--gap-main); object-fit: cover; }
 
-        .stats-container { background: var(--card-stats); border-radius: 20px; padding: 20px; margin-bottom: 30px; }
+        .stats-container { background: var(--card-stats); border-radius: 20px; padding: 20px; margin-bottom: var(--gap-main); }
         .progress-label { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; font-weight: 800; color: #9e9e9e; text-transform: uppercase; }
         .bar-bg { background: var(--bar-bg); height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 15px; }
         .bar-fill { height: 100%; width: 0%; transition: width 0.5s ease; }
@@ -58,7 +64,12 @@
         .meal-opt.active { background: var(--icon-active); color: #ffffff; }
 
         .history-section { margin-top: 10px; text-align: center; }
-        .history-title { font-family: 'Lexend Giga', sans-serif; font-size: 14px; margin-bottom: 15px; display: block; width: 100%; }
+        .history-title { 
+            font-family: 'Lexend Giga', sans-serif; font-size: 14px; margin-bottom: 15px; 
+            display: block; width: 100%; background: var(--header-bg); color: #ffffff; 
+            padding: 12px 0; border-radius: 20px; text-transform: uppercase;
+        }
+
         .select-mes { 
             width: 100%; height: 35px; border-radius: 12px; border: none; 
             background: var(--card-ponto); font-weight: bold; color: var(--text-secondary);
@@ -69,18 +80,21 @@
         .history-item { display: grid; grid-template-columns: 2fr 1fr 1fr; background: var(--card-ponto); padding: 12px 15px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .h-extra { color: var(--color-done); text-align: right; }
         .h-total { text-align: center; }
+
+        .active-manual { background: var(--icon-active) !important; color: white !important; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="header-content">
-            <span class="header-title">POINTAGE MÜLLER</span>
-            <span id="sync-status">A SINCRONIZAR...</span>
-        </div>
-    </header>
-
     <div class="main-container">
+        
+        <header>
+            <div class="header-content">
+                <span class="header-title">POINTAGE MÜLLER</span>
+                <span id="sync-status">SYNCHRONISATION...</span>
+            </div>
+        </header>
+
         <div class="grid-2x2">
             <div class="btn-card time">
                 <i class="fa-solid fa-right-to-bracket"></i>
@@ -88,7 +102,7 @@
             </div>
             <div class="btn-card time">
                 <i class="fa-solid fa-right-from-bracket"></i>
-                <input type="time" id="input-saida" class="time-input" onchange="manualSave('sai')">
+                <input type="time" id="input-saida" class="time-input" value="00:00" onchange="manualSave('sai')">
             </div>
         </div>
 
@@ -115,7 +129,7 @@
         </div>
 
         <div class="grid-action">
-            <button class="btn-foto" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-image"></i></button>
+            <button class="btn-foto" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-camera"></i></button>
             <button class="btn-submit" id="main-btn" onclick="enviar()"><i class="fa-solid fa-cloud-arrow-up"></i></button>
             <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="processarFoto(this)">
         </div>
@@ -124,20 +138,61 @@
         <div class="stats-container">
             <div class="progress-label"><span>BASE (174h)</span><span id="txt-base">0h00m</span></div>
             <div class="bar-bg"><div id="bar-base" class="bar-fill"></div></div>
-            <div class="progress-label"><span>EXTRA (+15h)</span><span id="txt-15">0h00m</span></div>
+            <div class="progress-label"><span>SUPPLÉM. (+15h)</span><span id="txt-15">0h00m</span></div>
             <div class="bar-bg"><div id="bar-15" class="bar-fill"></div></div>
-            <div class="progress-label"><span>DINNER</span><span id="txt-dinner">0</span></div>
+            <div class="progress-label"><span>REPAS</span><span id="txt-dinner">0</span></div>
             <div class="bar-bg"><div id="bar-dinner" class="bar-fill" style="background-color: var(--btn-foto);"></div></div>
         </div>
 
+        <div class="manual-section" style="margin-bottom: var(--gap-main);">
+            <button id="btn-manual-toggle" class="btn-small" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="toggleManualForm()">
+                SAISIE MANUELLE <i class="fa-solid fa-chevron-down"></i>
+            </button>
+
+            <div id="manual-form" style="display: none; background: var(--card-stats); border-radius: 20px; padding: 15px; margin-top: 15px;">
+                <div style="display: grid; gap: 15px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">DATE</label>
+                        <input type="date" id="m-data" class="time-input" style="background: var(--bg); border-radius: 10px; padding: 8px; font-size: 14px;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">ENTRÉE</label>
+                            <input type="time" id="m-ent" class="time-input" style="background: var(--bg); border-radius: 10px; padding: 8px;">
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">SORTIE</label>
+                            <input type="time" id="m-sai" class="time-input" value="00:00" style="background: var(--bg); border-radius: 10px; padding: 8px;">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="btn-small" id="m-btn-pausa" onclick="this.classList.toggle('active-manual')" 
+                             style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;">
+                            <i class="fa-solid fa-circle-pause"></i> PAUSE
+                        </div>
+                        <div class="btn-small" id="m-btn-almoco" onclick="this.classList.toggle('active-manual')" 
+                             style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;">
+                            <i class="fa-solid fa-utensils"></i> REPAS
+                        </div>
+                    </div>
+
+                    <button class="btn-small" style="background: var(--icon-active); color: white; height: 40px; width: 100%;">
+                        ENREGISTRER DANS L'HISTORIQUE
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="history-section">
-            <span class="history-title">HISTÓRICO</span>
+            <span class="history-title">HISTORIQUE</span>
             <select class="select-mes" id="select-mes" onchange="consultarMes()">
-                <option value="">Escolher mês...</option>
-                <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
-                <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
-                <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
-                <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+                <option value="">Choisir le mois...</option>
+                <option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option>
+                <option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option>
+                <option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option>
+                <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
             </select>
             <div class="history-list" id="lista-historico"></div>
         </div>
@@ -149,8 +204,8 @@
     let acumuladoMes = 0; let totalAlmocos = 0; let mealDuration = 1.5; let fotoBase64 = "";
 
     async function carregar() {
-        document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "";
-        document.getElementById('input-saida').value = localStorage.getItem('p_sai') || "";
+        document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "07:00";
+        document.getElementById('input-saida').value = localStorage.getItem('p_sai') || "00:00";
         const statusEl = document.getElementById('sync-status');
         
         try {
@@ -158,14 +213,22 @@
             const data = await res.json();
             acumuladoMes = parseFloat(data.acumulado || 0);
             totalAlmocos = parseInt(data.almocos || 0);
-            statusEl.innerText = "SINCRO OK";
+            statusEl.innerText = "SYNCHRONISÉ";
             statusEl.style.color = "var(--color-done)";
             calc();
         } catch(e) { 
-            statusEl.innerText = "OFFLINE"; 
+            statusEl.innerText = "HORS LIGNE"; 
             statusEl.style.color = "var(--color-pending)";
             calc(); 
         }
+    }
+
+    function toggleManualForm() {
+        const form = document.getElementById('manual-form');
+        const btn = document.getElementById('btn-manual-toggle');
+        const icon = btn.querySelector('i');
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up');
     }
 
     function toggleSimple(checkId, cardId) {
@@ -182,10 +245,10 @@
         cb.checked = !cb.checked;
         if (cb.checked) {
             card.classList.replace('inactive', 'active');
-            setMealTime(1); // Ativa 1H ao ligar
+            setMealTime(1);
         } else {
             card.classList.replace('active', 'inactive');
-            setMealTime(1.5); // Volta para 1H30 ao desligar
+            setMealTime(1.5);
         }
         calc();
     }
@@ -203,7 +266,7 @@
     }
 
     function toCent(ts) {
-        if(!ts) return 0;
+        if(!ts || ts === "00:00") return 0;
         let [h, m] = ts.split(':').map(Number);
         return h + (m/60);
     }
@@ -211,7 +274,7 @@
     function formatTime(decimal) {
         let hrs = Math.floor(decimal);
         let mins = Math.round((decimal - hrs) * 60);
-        return hrs + "h" + (mins < 10 ? "0" : "") + mins + "m";
+        return hrs + "h" + (mins < 10 ? "0" : "") + mins;
     }
 
     function calc() {
@@ -244,7 +307,7 @@
         const mes = document.getElementById('select-mes').value;
         const lista = document.getElementById('lista-historico');
         if(!mes) { lista.innerHTML = ""; return; }
-        lista.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:11px;">A CARREGAR...</div>';
+        lista.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:11px;">CHARGEMENT...</div>';
         try {
             const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`, { mode: 'cors' });
             const logs = await res.json();
@@ -254,8 +317,8 @@
                     <span class="h-total">${isNaN(log.total) ? '0.00' : log.total}h</span>
                     <span class="h-extra">${(!isNaN(log.extra) && parseFloat(log.extra) > 0) ? '+'+log.extra+'h' : '-'}</span>
                 </div>
-            `).join('') : '<div style="text-align:center; font-size:11px;">SEM DADOS</div>';
-        } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERRO DE LIGAÇÃO</div>'; }
+            `).join('') : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
+        } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERREUR CONNEXION</div>'; }
     }
 
     function processarFoto(input) {
@@ -280,31 +343,25 @@
     }
 
     async function enviar() {
-        // AVISO DE FOTO OBRIGATÓRIA
         if (!fotoBase64) {
-            alert("⚠️ ERRO: É obrigatório carregar a foto do cartão antes de enviar o ponto.");
+            alert("⚠️ pas de photo de la carte ⚠️");
             return;
         }
-
         const btn = document.getElementById('main-btn');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
-        const desc = (document.getElementById('check-pausa').checked ? 0.5 : 0) + 
-                     (document.getElementById('check-almoco').checked ? mealDuration : 0);
-        
         const payload = {
             data: new Date().toISOString().split('T')[0],
             entrada: toCent(document.getElementById('input-entrada').value), 
             saida: toCent(document.getElementById('input-saida').value),
-            almocoDuracao: desc,
+            almocoDuracao: (document.getElementById('check-pausa').checked ? 0.5 : 0) + (document.getElementById('check-almoco').checked ? mealDuration : 0),
             subAlmoco: document.getElementById('check-almoco').checked ? 1 : 0,
             foto: fotoBase64
         };
-        
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             localStorage.removeItem('p_ent'); localStorage.removeItem('p_sai');
-            alert("Sucesso!"); location.reload();
-        } catch (e) { alert("Erro ao enviar"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
+            alert("Succès!"); location.reload();
+        } catch (e) { alert("Erreur d'envoi"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
     }
     window.onload = carregar;
 </script>
