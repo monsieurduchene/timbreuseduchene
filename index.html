@@ -46,7 +46,6 @@
 
         .time-input { border: none; background: transparent; font-size: 16px; font-weight: 800; color: var(--text); font-family: inherit; width: 100%; text-align: center; display: flex; justify-content: center; appearance: none; -webkit-appearance: none; }
 
-        /* Estilos Originais de Toggle */
         .btn-card.toggle { background: var(--card-toggle); cursor: pointer; }
         .btn-card i { font-size: 24px; color: var(--text-secondary); opacity: 0.7; pointer-events: none; }
         .toggle.active i { color: var(--icon-active); opacity: 1; }
@@ -79,7 +78,10 @@
         .history-item { display: grid; grid-template-columns: 2fr 1fr 1fr; background: var(--card-ponto); padding: 12px 15px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .h-extra { color: var(--color-done); text-align: right; }
         .h-total { text-align: center; }
-        .active-manual { background: var(--icon-active) !important; color: white !important; }
+
+        /* Consistência Manual */
+        .manual-btn-toggle { height: 50px !important; border-radius: 15px !important; }
+
         .history-summary { background: var(--header-bg); color: white; padding: 15px; border-radius: 15px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; font-size: 8px; font-weight: 800; text-align: center; }
         .summary-box { display: flex; flex-direction: column; gap: 3px; }
         .summary-val { font-size: 10px; }
@@ -113,7 +115,6 @@
         <div class="grid-20-80">
             <div class="btn-card toggle active" id="card-pausa" onclick="toggleSimple('check-pausa', 'card-pausa')">
                 <i class="fa-solid fa-circle-pause"></i>
-                <span class="label-p">Pausa</span>
                 <input type="checkbox" id="check-pausa" style="display:none" checked onchange="calc()">
             </div>
 
@@ -149,7 +150,7 @@
             <div class="bar-bg"><div id="bar-base" class="bar-fill"></div></div>
             <div class="progress-label"><span>SUPPLÉM. (+15h)</span><span id="txt-15">0h00m</span></div>
             <div class="bar-bg"><div id="bar-15" class="bar-fill"></div></div>
-            <div class="progress-label"><span>EXTRA REAL</span><span id="txt-extra-real">0h00m</span></div>
+            <div class="progress-label"><span>EXTRA</span><span id="txt-extra-real">0h00m</span></div>
             <div class="bar-bg"><div id="bar-extra-real" class="bar-fill" style="background-color: var(--color-done);"></div></div>
             <div class="progress-label"><span>REPAS</span><span id="txt-dinner">0</span></div>
             <div class="bar-bg"><div id="bar-dinner" class="bar-fill" style="background-color: var(--color-repas);"></div></div>
@@ -170,12 +171,18 @@
                         <input type="time" id="m-sai" class="time-input" value="00:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;"></div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="btn-small active-manual" id="m-btn-pausa" onclick="this.classList.toggle('active-manual')" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;"><i class="fa-solid fa-circle-pause"></i> PAUSE</div>
-                        <div class="btn-small" id="m-btn-almoco" onclick="this.classList.toggle('active-manual')" style="display: flex; align-items: center; justify-content: center; gap: 5px; height: 35px; background: var(--card-toggle); cursor: pointer;"><i class="fa-solid fa-utensils"></i> REPAS</div>
+                        <div class="btn-card toggle active manual-btn-toggle" id="m-card-pausa" onclick="toggleSimpleManual('m-check-pausa', 'm-card-pausa')">
+                            <i class="fa-solid fa-circle-pause"></i>
+                            <input type="checkbox" id="m-check-pausa" style="display:none" checked>
+                        </div>
+                        <div class="btn-card toggle inactive manual-btn-toggle" id="m-card-almoco" onclick="toggleSimpleManual('m-check-almoco', 'm-card-almoco')">
+                            <i class="fa-solid fa-utensils"></i>
+                            <input type="checkbox" id="m-check-almoco" style="display:none">
+                        </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 4fr; gap: 15px; align-items: stretch;">
-                        <button class="btn-foto" style="height: 40px; border-radius: 12px; font-size: 16px;" onclick="document.getElementById('file-input-manual').click()"><i class="fa-solid fa-camera"></i></button>
-                        <button id="btn-manual-submit" class="btn-small" onclick="enviarManual()" style="background: var(--icon-active); color: white; height: 40px; width: 100%;">ENREGISTRER</button>
+                        <button class="btn-foto" style="height: 50px; border-radius: 15px; font-size: 16px;" onclick="document.getElementById('file-input-manual').click()"><i class="fa-solid fa-camera"></i></button>
+                        <button id="btn-manual-submit" class="btn-submit" onclick="enviarManual()" style="padding:0; height: 50px; border-radius: 15px;"><i class="fa-solid fa-cloud-arrow-up"></i></button>
                         <input type="file" id="file-input-manual" accept="image/*" style="display:none;" onchange="processarFoto(this, 'preview-foto-manual')">
                     </div>
                     <img id="preview-foto-manual">
@@ -227,17 +234,21 @@
         icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up');
     }
 
-    // Revertido e ajustado apenas para trocar classes inactive/active originais
     function toggleSimple(checkId, cardId) {
         const cb = document.getElementById(checkId);
         cb.checked = !cb.checked;
         const card = document.getElementById(cardId);
-        if (cb.checked) {
-            card.classList.replace('inactive', 'active');
-        } else {
-            card.classList.replace('active', 'inactive');
-        }
+        if (cb.checked) { card.classList.replace('inactive', 'active'); } 
+        else { card.classList.replace('active', 'inactive'); }
         calc();
+    }
+
+    function toggleSimpleManual(checkId, cardId) {
+        const cb = document.getElementById(checkId);
+        cb.checked = !cb.checked;
+        const card = document.getElementById(cardId);
+        if (cb.checked) { card.classList.replace('inactive', 'active'); } 
+        else { card.classList.replace('active', 'inactive'); }
     }
 
     function toggleMeal() {
@@ -390,14 +401,14 @@
             data: dataInput,
             entrada: toCent(document.getElementById('m-ent').value), 
             saida: toCent(document.getElementById('m-sai').value),
-            almocoDuracao: (document.getElementById('m-btn-pausa').classList.contains('active-manual') ? 0.5 : 0) + (document.getElementById('m-btn-almoco').classList.contains('active-manual') ? 1.5 : 0),
-            subAlmoco: document.getElementById('m-btn-almoco').classList.contains('active-manual') ? 1 : 0,
+            almocoDuracao: (document.getElementById('m-check-pausa').checked ? 0.5 : 0) + (document.getElementById('m-check-almoco').checked ? 1.5 : 0),
+            subAlmoco: document.getElementById('m-check-almoco').checked ? 1 : 0,
             foto: fotoBase64
         };
         try {
             await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             alert("Succès!"); location.reload();
-        } catch (e) { alert("Erreur"); btn.disabled = false; btn.innerHTML = 'ENREGISTRER'; }
+        } catch (e) { alert("Erreur"); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'; }
     }
 
     window.onload = carregar;
