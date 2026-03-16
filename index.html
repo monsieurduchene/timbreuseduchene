@@ -56,7 +56,6 @@
         .meal-bottom { height: 35%; display: flex; border-top: 1px solid rgba(0,0,0,0.05); background: rgba(0,0,0,0.03); }
         .meal-opt { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: var(--text-secondary); cursor: pointer; }
         .meal-opt.active { background: var(--icon-active); color: white; }
-        .label-p { font-size: 8px; font-weight: 900; margin-top: 5px; color: var(--text-secondary); text-transform: uppercase; }
 
         .btn-small { height: 35px; border-radius: 12px; background: var(--card-ponto); border: none; color: var(--text-secondary); font-weight: bold; font-size: 11px; text-transform: uppercase; cursor: pointer; }
 
@@ -79,7 +78,6 @@
         .h-extra { color: var(--color-done); text-align: right; }
         .h-total { text-align: center; }
 
-        /* Consistência Manual */
         .manual-btn-toggle { height: 50px !important; border-radius: 15px !important; }
 
         .history-summary { background: var(--header-bg); color: white; padding: 15px; border-radius: 15px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; font-size: 8px; font-weight: 800; text-align: center; }
@@ -88,6 +86,8 @@
         .sum-red { color: #ff5252; }
         .sum-green { color: #69f0ae; }
         .sum-repas { color: var(--color-repas); }
+
+        footer { text-align: center; padding: 20px; opacity: 0.3; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -97,7 +97,7 @@
         <header>
             <div class="header-content">
                 <span class="header-title">POINTAGE MÜLLER</span>
-                <span id="sync-status">SYNCHRONISATION...</span>
+                <span id="sync-status">AUTHENTIFICATION...</span>
             </div>
         </header>
 
@@ -192,39 +192,63 @@
 
         <div class="history-section">
             <span class="history-title">HISTORIQUE</span>
-            <select class="select-mes" id="select-mes" onchange="consultarMes()">
-                <option value="">Choisir le mois...</option>
-                <option value="01">Janvier</option><option value="02">Février</option><option value="03">Mars</option>
-                <option value="04">Avril</option><option value="05">Mai</option><option value="06">Juin</option>
-                <option value="07">Juillet</option><option value="08">Août</option><option value="09">Septembre</option>
-                <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
-            </select>
             <div class="history-list" id="lista-historico"></div>
             <div id="historico-resumo"></div>
         </div>
+
+        <footer>
+            <i class="fa-solid fa-lock" onclick="resetToken()" style="cursor:pointer"></i>
+        </footer>
     </div>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxLc3H1y91vfVs5WhAiD4RddllfSRJY0J0SVgH3BIwUSUG5f7Ra5iqLvxcLLQ-QAtm-/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzjdHc598weic8PCL3rsAvMmil2MWXBK9xYHtnQe3IiVxOp7qV4zdxNcgGhsuagWLEd/exec";
     
     let acumuladoMes = 0; let totalAlmocos = 0; let mealDuration = 1.5; let fotoBase64 = "";
+    let USER_TOKEN = localStorage.getItem('muller_ponto_token');
 
     async function carregar() {
+        if (!USER_TOKEN) {
+            USER_TOKEN = prompt("Introduza o PIN de acesso:");
+            if (USER_TOKEN) localStorage.setItem('muller_ponto_token', USER_TOKEN);
+            else { alert("Acesso negado."); return; }
+        }
+
         const mesesF = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
         document.getElementById('txt-mes-atual').innerText = mesesF[new Date().getMonth()];
         document.getElementById('input-entrada').value = localStorage.getItem('p_ent') || "07:00";
         document.getElementById('input-saida').value = localStorage.getItem('p_sai') || "00:00";
+        
         const statusEl = document.getElementById('sync-status');
         try {
-            const res = await fetch(scriptURL, { mode: 'cors' });
+            const res = await fetch(`${scriptURL}?token=${USER_TOKEN}`, { mode: 'cors' });
             const data = await res.json();
+            
+            if (data.error) {
+                alert("PIN Incorreto!");
+                resetToken();
+                return;
+            }
+
             acumuladoMes = parseFloat(data.acumulado || 0);
             totalAlmocos = parseInt(data.almocos || 0);
             statusEl.innerText = "SYNCHRONISÉ";
             statusEl.style.color = "var(--color-done)";
             calc();
-        } catch(e) { statusEl.innerText = "HORS LIGNE"; statusEl.style.color = "var(--color-pending)"; calc(); }
+            consultarHistoricoAutomatico();
+        } catch(e) { 
+            statusEl.innerText = "HORS LIGNE"; 
+            statusEl.style.color = "var(--color-pending)"; 
+            calc(); 
+        }
     }
+
+    function resetToken() {
+        localStorage.removeItem('muller_ponto_token');
+        location.reload();
+    }
+
+    // Restantes funções originais do Milestone 1 adaptadas com o TOKEN
 
     function toggleManualForm() {
         const form = document.getElementById('manual-form');
@@ -313,43 +337,24 @@
         document.getElementById('bar-dinner').style.width = Math.min(100, ((totalAlmocos + isTodayAlmoco)/22)*100) + "%";
     }
 
-    async function consultarMes() {
-        const mes = document.getElementById('select-mes').value;
+    async function consultarHistoricoAutomatico() {
+        const mes = (new Date().getMonth() + 1).toString().padStart(2, '0');
         const lista = document.getElementById('lista-historico');
         const resumo = document.getElementById('historico-resumo');
-        if(!mes) { lista.innerHTML = ""; resumo.innerHTML = ""; return; }
-        lista.innerHTML = '<div style="text-align:center; opacity:0.5; font-size:11px;">CHARGEMENT...</div>';
         try {
-            const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&t=${new Date().getTime()}`, { mode: 'cors' });
+            const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&token=${USER_TOKEN}`, { mode: 'cors' });
             const logs = await res.json();
-            let totalAcumulado = 0;
-            let totalRepasMes = 0;
-            let listaHTML = logs.map(log => {
+            if (logs.error) return;
+
+            let totalAcumulado = 0; let totalRepasMes = 0;
+            let listaHTML = logs.slice(0, 5).map(log => {
                 const totalDia = parseFloat(log.total) || 0;
                 totalAcumulado += totalDia;
-                if(log.repas == 1 || log.subAlmoco == 1) totalRepasMes++;
                 const totalF = formatTime(totalDia);
-                let extraDiv = '-';
-                if (!isNaN(log.extra) && parseFloat(log.extra) > 0) {
-                    extraDiv = `<span class="h-extra">+${formatTime(parseFloat(log.extra))}</span>`;
-                }
-                return `<div class="history-item"><span>${log.data}</span><span class="h-total">${totalF}</span><span class="h-extra">${extraDiv}</span></div>`;
+                return `<div class="history-item"><span>${log.data}</span><span class="h-total">${totalF}</span><span class="h-extra">${log.extra > 0 ? '+'+formatTime(parseFloat(log.extra)) : '-'}</span></div>`;
             }).join('');
             lista.innerHTML = logs.length ? listaHTML : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
-            if (logs.length) {
-                const hNormais = Math.min(totalAcumulado, 174);
-                const hSupp = (totalAcumulado > 174) ? Math.min(15, totalAcumulado - 174) : 0;
-                const hExtraFinal = (totalAcumulado > 189) ? totalAcumulado - 189 : 0;
-                resumo.innerHTML = `
-                    <div class="history-summary">
-                        <div class="summary-box"><span>BASE</span><span class="summary-val ${hNormais >= 174 ? 'sum-green' : 'sum-red'}">${formatTime(hNormais)}</span></div>
-                        <div class="summary-box"><span>SUPPLÉM.</span><span class="summary-val ${hSupp >= 15 ? 'sum-green' : 'sum-red'}">${formatTime(hSupp)}</span></div>
-                        <div class="summary-box"><span>EXTRA</span><span class="summary-val ${hExtraFinal > 0 ? 'sum-green' : ''}">${formatTime(hExtraFinal)}</span></div>
-                        <div class="summary-box"><span>REPAS</span><span class="summary-val sum-repas">${totalRepasMes}</span></div>
-                    </div>
-                `;
-            } else { resumo.innerHTML = ""; }
-        } catch(e) { lista.innerHTML = '<div style="text-align:center; color:red; font-size:11px;">ERREUR...</div>'; }
+        } catch(e) {}
     }
 
     function processarFoto(input, previewId) {
@@ -378,6 +383,7 @@
         const btn = document.getElementById('main-btn');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
         const payload = {
+            token: USER_TOKEN,
             data: new Date().toISOString().split('T')[0],
             entrada: toCent(document.getElementById('input-entrada').value), 
             saida: toCent(document.getElementById('input-saida').value),
@@ -398,6 +404,7 @@
         const btn = document.getElementById('btn-manual-submit');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; btn.disabled = true;
         const payload = {
+            token: USER_TOKEN,
             data: dataInput,
             entrada: toCent(document.getElementById('m-ent').value), 
             saida: toCent(document.getElementById('m-sai').value),
