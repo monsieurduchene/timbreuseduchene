@@ -521,7 +521,7 @@
 
     // ─── SUBMIT (TODAY) ───────────────────────────────────────────────────────
     async function enviar() {
-        if (!fotoBase64Main) { showToast("⚠️ pas de photo ⚠️", 'warning'); return; }
+        if (!fotoBase64Main && currentTipo === 'NORMAL') { showToast("⚠️ pas de photo ⚠️", 'warning'); return; }
         const btn = document.getElementById('main-btn');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         btn.disabled  = true;
@@ -553,7 +553,7 @@
 
     // ─── SUBMIT (MANUAL) ─────────────────────────────────────────────────────
     async function enviarManual() {
-        if (!fotoBase64Manual) { showToast("⚠️ pas de photo ⚠️", 'warning'); return; }
+        if (!fotoBase64Manual && currentTipoManual === 'NORMAL') { showToast("⚠️ pas de photo ⚠️", 'warning'); return; }
         const dataInput = document.getElementById('m-data').value;
         if (!dataInput) { showToast("⚠️ Date manquante ⚠️", 'warning'); return; }
 
