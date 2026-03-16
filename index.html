@@ -17,6 +17,7 @@
             --color-pending: #d32f2f; --color-done: #388e3c; 
             --gap-main: 15px; 
             --color-repas: #fff59d; 
+            --color-vacances: #bbdefb; /* Azul Pastel */
         }
         
         body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; color: var(--text); -webkit-tap-highlight-color: transparent; }
@@ -49,6 +50,7 @@
         .btn-card.toggle { background: var(--card-toggle); cursor: pointer; }
         .btn-card i { font-size: 24px; color: var(--text-secondary); opacity: 0.7; pointer-events: none; }
         .toggle.active i { color: var(--icon-active); opacity: 1; }
+        .toggle.active.btn-small { background: var(--icon-active); color: white; }
         .toggle.inactive { opacity: 0.4; filter: grayscale(1); }
 
         .meal-content { width: 100%; height: 100%; display: flex; flex-direction: column; }
@@ -57,7 +59,7 @@
         .meal-opt { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: var(--text-secondary); cursor: pointer; }
         .meal-opt.active { background: var(--icon-active); color: white; }
 
-        .btn-small { height: 35px; border-radius: 12px; background: var(--card-ponto); border: none; color: var(--text-secondary); font-weight: bold; font-size: 11px; text-transform: uppercase; cursor: pointer; }
+        .btn-small { height: 35px; border-radius: 12px; background: var(--card-ponto); border: none; color: var(--text-secondary); font-weight: bold; font-size: 11px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
 
         .btn-foto { width: 100%; background: var(--btn-foto); color: #fafafa; border: none; border-radius: 20px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-submit { width: 100%; background: var(--btn-submit); color: #fafafa; border: none; padding: 25px; border-radius: 20px; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -72,20 +74,12 @@
 
         .history-section { margin-top: 10px; text-align: center; }
         .history-title { font-family: 'Lexend Giga', sans-serif; font-size: 14px; margin-bottom: 15px; display: block; width: 100%; background: var(--header-bg); color: #ffffff; padding: 12px 0; border-radius: 20px; text-transform: uppercase; }
-        .select-mes { width: 100%; height: 35px; border-radius: 12px; border: none; background: var(--card-ponto); font-weight: bold; color: var(--text-secondary); font-size: 11px; margin-bottom: 15px; text-transform: uppercase; text-align: center; text-align-last: center; appearance: none; cursor: pointer; }
         .history-list { display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 15px; }
         .history-item { display: grid; grid-template-columns: 2fr 1fr 1fr; background: var(--card-ponto); padding: 12px 15px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .h-extra { color: var(--color-done); text-align: right; }
         .h-total { text-align: center; }
 
         .manual-btn-toggle { height: 50px !important; border-radius: 15px !important; }
-
-        .history-summary { background: var(--header-bg); color: white; padding: 15px; border-radius: 15px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; font-size: 8px; font-weight: 800; text-align: center; }
-        .summary-box { display: flex; flex-direction: column; gap: 3px; }
-        .summary-val { font-size: 10px; }
-        .sum-red { color: #ff5252; }
-        .sum-green { color: #69f0ae; }
-        .sum-repas { color: var(--color-repas); }
 
         footer { text-align: center; padding: 20px; opacity: 0.3; font-size: 12px; }
     </style>
@@ -102,11 +96,11 @@
         </header>
 
         <div class="grid-2x2">
-            <div class="btn-card time">
+            <div class="btn-card time" id="card-entrada">
                 <i class="fa-solid fa-right-to-bracket"></i>
                 <input type="time" id="input-entrada" class="time-input" onchange="manualSave('ent')">
             </div>
-            <div class="btn-card time">
+            <div class="btn-card time" id="card-saida">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <input type="time" id="input-saida" class="time-input" value="00:00" onchange="manualSave('sai')">
             </div>
@@ -133,8 +127,8 @@
         </div>
 
         <div class="grid-small">
-            <button class="btn-small">congé</button>
-            <button class="btn-small">vacances</button>
+            <button id="btn-main-conge" class="btn-small" onclick="toggleTipo('CONGE', 'btn-main-conge')">congé</button>
+            <button id="btn-main-vacances" class="btn-small" onclick="toggleTipo('VACANCES', 'btn-main-vacances')">vacances</button>
         </div>
 
         <div class="grid-action">
@@ -154,6 +148,8 @@
             <div class="bar-bg"><div id="bar-extra-real" class="bar-fill" style="background-color: var(--color-done);"></div></div>
             <div class="progress-label"><span>REPAS</span><span id="txt-dinner">0</span></div>
             <div class="bar-bg"><div id="bar-dinner" class="bar-fill" style="background-color: var(--color-repas);"></div></div>
+            <div class="progress-label"><span>VACANCES (160h)</span><span id="txt-vacances">160h00m</span></div>
+            <div class="bar-bg"><div id="bar-vacances" class="bar-fill"></div></div>
         </div>
 
         <div class="manual-section" style="margin-bottom: var(--gap-main);">
@@ -164,6 +160,12 @@
                 <div style="display: grid; gap: 15px;">
                     <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">DATE</label>
                     <input type="date" id="m-data" class="time-input" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box; font-size: 14px;"></div>
+                    
+                    <div class="grid-small">
+                        <button id="btn-m-conge" class="btn-small" onclick="toggleTipoManual('CONGE', 'btn-m-conge')">congé</button>
+                        <button id="btn-m-vacances" class="btn-small" onclick="toggleTipoManual('VACANCES', 'btn-m-vacances')">vacances</button>
+                    </div>
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">ENTRÉE</label>
                         <input type="time" id="m-ent" class="time-input" value="07:00" style="background: var(--bg); border-radius: 12px; height: 35px; box-sizing: border-box;"></div>
@@ -193,7 +195,6 @@
         <div class="history-section">
             <span class="history-title">HISTORIQUE</span>
             <div class="history-list" id="lista-historico"></div>
-            <div id="historico-resumo"></div>
         </div>
 
         <footer>
@@ -202,9 +203,12 @@
     </div>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbzjdHc598weic8PCL3rsAvMmil2MWXBK9xYHtnQe3IiVxOp7qV4zdxNcgGhsuagWLEd/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbybPdOUUj8O5JNQ3HJJ-mKf9UZCplI9pUxRN5ypad96qbQ9RUzyQh6NA40V2rb7buK8/exec";
     
     let acumuladoMes = 0; let totalAlmocos = 0; let mealDuration = 1.5; let fotoBase64 = "";
+    let vacancesUtilizadasTotais = 0;
+    let currentTipo = "NORMAL";
+    let currentTipoManual = "NORMAL";
     let USER_TOKEN = localStorage.getItem('muller_ponto_token');
 
     async function carregar() {
@@ -224,14 +228,12 @@
             const res = await fetch(`${scriptURL}?token=${USER_TOKEN}`, { mode: 'cors' });
             const data = await res.json();
             
-            if (data.error) {
-                alert("PIN Incorreto!");
-                resetToken();
-                return;
-            }
+            if (data.error) { alert("PIN Incorreto!"); resetToken(); return; }
 
             acumuladoMes = parseFloat(data.acumulado || 0);
             totalAlmocos = parseInt(data.almocos || 0);
+            vacancesUtilizadasTotais = parseFloat(data.vacancesUsadas || 0);
+            
             statusEl.innerText = "SYNCHRONISÉ";
             statusEl.style.color = "var(--color-done)";
             calc();
@@ -248,7 +250,32 @@
         location.reload();
     }
 
-    // Restantes funções originais do Milestone 1 adaptadas com o TOKEN
+    function toggleTipo(tipo, btnId) {
+        const btn = document.getElementById(btnId);
+        if (currentTipo === tipo) {
+            currentTipo = "NORMAL";
+            btn.classList.remove('active', 'toggle');
+        } else {
+            document.getElementById('btn-main-conge').classList.remove('active', 'toggle');
+            document.getElementById('btn-main-vacances').classList.remove('active', 'toggle');
+            currentTipo = tipo;
+            btn.classList.add('active', 'toggle');
+        }
+        calc();
+    }
+
+    function toggleTipoManual(tipo, btnId) {
+        const btn = document.getElementById(btnId);
+        if (currentTipoManual === tipo) {
+            currentTipoManual = "NORMAL";
+            btn.classList.remove('active', 'toggle');
+        } else {
+            document.getElementById('btn-m-conge').classList.remove('active', 'toggle');
+            document.getElementById('btn-m-vacances').classList.remove('active', 'toggle');
+            currentTipoManual = tipo;
+            btn.classList.add('active', 'toggle');
+        }
+    }
 
     function toggleManualForm() {
         const form = document.getElementById('manual-form');
@@ -314,10 +341,13 @@
         let descPausa = document.getElementById('check-pausa').checked ? 0.5 : 0;
         let descAlmoco = document.getElementById('check-almoco').checked ? mealDuration : 0;
         let totalDescontos = descPausa + descAlmoco;
+        
         if (sai < ent && sai !== 0) sai += 24;
-        let hoje = (sai > ent) ? Math.max(0, sai - ent - totalDescontos) : 0;
+        
+        let hoje = (sai > ent && currentTipo === "NORMAL") ? Math.max(0, sai - ent - totalDescontos) : 0;
         let totalGeral = acumuladoMes + hoje;
         
+        // Progressão Normal
         let base = Math.min(totalGeral, 174);
         document.getElementById('bar-base').style.width = (base/174)*100 + "%";
         document.getElementById('bar-base').style.backgroundColor = totalGeral >= 174 ? "var(--color-done)" : "var(--color-pending)";
@@ -332,26 +362,33 @@
         document.getElementById('txt-extra-real').innerText = formatTime(extraReal);
         document.getElementById('bar-extra-real').style.width = Math.min(100, (extraReal / 10) * 100) + "%"; 
 
-        let isTodayAlmoco = document.getElementById('check-almoco').checked ? 1 : 0;
+        // Repas
+        let isTodayAlmoco = (document.getElementById('check-almoco').checked && currentTipo === "NORMAL") ? 1 : 0;
         document.getElementById('txt-dinner').innerText = totalAlmocos + isTodayAlmoco;
         document.getElementById('bar-dinner').style.width = Math.min(100, ((totalAlmocos + isTodayAlmoco)/22)*100) + "%";
+
+        // VACANCES (Barra decrescente)
+        let vacHoje = (currentTipo === "VACANCES") ? 8 : 0;
+        let vacRestantes = 160 - (vacancesUtilizadasTotais + vacHoje);
+        document.getElementById('txt-vacances').innerText = formatTime(Math.max(0, vacRestantes));
+        
+        let barVac = document.getElementById('bar-vacances');
+        barVac.style.width = (Math.max(0, vacRestantes) / 160) * 100 + "%";
+        barVac.style.backgroundColor = vacRestantes <= 24 ? "var(--color-pending)" : "var(--color-vacances)";
     }
 
     async function consultarHistoricoAutomatico() {
         const mes = (new Date().getMonth() + 1).toString().padStart(2, '0');
         const lista = document.getElementById('lista-historico');
-        const resumo = document.getElementById('historico-resumo');
         try {
             const res = await fetch(`${scriptURL}?action=getHistory&mes=${mes}&token=${USER_TOKEN}`, { mode: 'cors' });
             const logs = await res.json();
             if (logs.error) return;
 
-            let totalAcumulado = 0; let totalRepasMes = 0;
             let listaHTML = logs.slice(0, 5).map(log => {
                 const totalDia = parseFloat(log.total) || 0;
-                totalAcumulado += totalDia;
-                const totalF = formatTime(totalDia);
-                return `<div class="history-item"><span>${log.data}</span><span class="h-total">${totalF}</span><span class="h-extra">${log.extra > 0 ? '+'+formatTime(parseFloat(log.extra)) : '-'}</span></div>`;
+                const totalF = log.tipo !== "NORMAL" ? log.tipo : formatTime(totalDia);
+                return `<div class="history-item"><span>${log.data}</span><span class="h-total">${totalF}</span><span class="h-extra">${log.extra > 0 && log.tipo === 'NORMAL' ? '+'+formatTime(parseFloat(log.extra)) : '-'}</span></div>`;
             }).join('');
             lista.innerHTML = logs.length ? listaHTML : '<div style="text-align:center; font-size:11px;">AUCUNE DONNÉE</div>';
         } catch(e) {}
@@ -385,6 +422,7 @@
         const payload = {
             token: USER_TOKEN,
             data: new Date().toISOString().split('T')[0],
+            tipo: currentTipo,
             entrada: toCent(document.getElementById('input-entrada').value), 
             saida: toCent(document.getElementById('input-saida').value),
             almocoDuracao: (document.getElementById('check-pausa').checked ? 0.5 : 0) + (document.getElementById('check-almoco').checked ? mealDuration : 0),
@@ -406,6 +444,7 @@
         const payload = {
             token: USER_TOKEN,
             data: dataInput,
+            tipo: currentTipoManual,
             entrada: toCent(document.getElementById('m-ent').value), 
             saida: toCent(document.getElementById('m-sai').value),
             almocoDuracao: (document.getElementById('m-check-pausa').checked ? 0.5 : 0) + (document.getElementById('m-check-almoco').checked ? 1.5 : 0),
