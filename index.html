@@ -57,6 +57,7 @@
         .meal-bottom { height: 35%; display: flex; border-top: 1px solid rgba(0,0,0,0.05); background: rgba(0,0,0,0.03); }
         .meal-opt { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: var(--text-secondary); cursor: pointer; }
         .meal-opt.active { background: var(--icon-active); color: white; }
+        .meal-bottom.locked { pointer-events: none; opacity: 0.5; }
 
         .btn-small { height: 35px; border-radius: 12px; background: var(--card-ponto); border: none; color: var(--text-secondary); font-weight: bold; font-size: 11px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
 
@@ -143,7 +144,7 @@
                         <i class="fa-solid fa-utensils"></i>
                         <input type="checkbox" id="check-almoco" style="display:none" onchange="calc()">
                     </div>
-                    <div class="meal-bottom">
+                    <div class="meal-bottom" id="meal-bottom-main">
                         <div class="meal-opt" id="opt-1" onclick="setMealTime(1)">1H</div>
                         <div class="meal-opt active" id="opt-15" onclick="setMealTime(1.5)">1H30</div>
                     </div>
@@ -376,11 +377,21 @@
     }
 
     function toggleMeal() {
-        const cb   = document.getElementById('check-almoco');
-        const card = document.getElementById('card-almoco');
+        const cb     = document.getElementById('check-almoco');
+        const card   = document.getElementById('card-almoco');
+        const bottom = document.getElementById('meal-bottom-main');
         cb.checked = !cb.checked;
-        if (cb.checked) { card.classList.replace('inactive', 'active'); setMealTime(1); }
-        else            { card.classList.replace('active', 'inactive'); setMealTime(1.5); }
+        if (cb.checked) {
+            // Repas mode: force 1H, lock selector
+            card.classList.replace('inactive', 'active');
+            setMealTime(1);
+            bottom.classList.add('locked');
+        } else {
+            // Factory mode: unlock selector, reset to 1H30
+            card.classList.replace('active', 'inactive');
+            setMealTime(1.5);
+            bottom.classList.remove('locked');
+        }
         calc();
     }
 
@@ -400,8 +411,9 @@
     function calc() {
         let ent      = toCent(document.getElementById('input-entrada').value);
         let sai      = toCent(document.getElementById('input-saida').value);
-        let descPausa  = document.getElementById('check-pausa').checked  ? 0.5 : 0;
-        let descAlmoco = document.getElementById('check-almoco').checked ? mealDuration : 0;
+        let descPausa  = document.getElementById('check-pausa').checked ? 0.5 : 0;
+        // Always deduct lunch. mealDuration=1.5 (factory default) or 1 (short/repas)
+        let descAlmoco = mealDuration;
         if (sai < ent && sai !== 0) sai += 24;
 
         let hoje      = (sai > ent && currentTipo === "NORMAL") ? Math.max(0, sai - ent - (descPausa + descAlmoco)) : 0;
@@ -526,8 +538,8 @@
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         btn.disabled  = true;
 
-        const descPausa  = document.getElementById('check-pausa').checked  ? 0.5 : 0;
-        const descAlmoco = document.getElementById('check-almoco').checked  ? mealDuration : 0;
+        const descPausa  = document.getElementById('check-pausa').checked ? 0.5 : 0;
+        const descAlmoco = mealDuration; // always deducted; 1.5 factory, 1 if repas
 
         const payload = {
             token:        USER_TOKEN,
@@ -561,9 +573,8 @@
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         btn.disabled  = true;
 
-        const descPausa  = document.getElementById('m-check-pausa').checked  ? 0.5 : 0;
-        // FIX: use mealDuration instead of hardcoded 1.5
-        const descAlmoco = document.getElementById('m-check-almoco').checked ? mealDuration : 0;
+        const descPausa  = document.getElementById('m-check-pausa').checked ? 0.5 : 0;
+        const descAlmoco = mealDuration; // always deducted; 1.5 factory, 1 if repas
 
         const payload = {
             token:         USER_TOKEN,
