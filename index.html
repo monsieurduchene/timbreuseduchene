@@ -91,8 +91,12 @@
         .conge-hours.visible select { color: #fff; }
         .conge-hours select option { background: #424242; color: #fff; }
 
+        .notes-input::placeholder { color: var(--text-secondary); opacity: 0.6; }
         .month-btn { font-size: 10px; }
         .month-btn.active-month { background: var(--icon-active); color: #fff; }
+
+        .notes-input { width: 100%; height: 35px; border: none; border-radius: 12px; background: var(--card-ponto); font-size: 11px; font-weight: 800; color: var(--text-secondary); text-align: center; text-transform: uppercase; letter-spacing: 1px; box-sizing: border-box; padding: 0 12px; margin-bottom: var(--gap-main); font-family: inherit; outline: none; }
+        .notes-input::placeholder { color: var(--text-secondary); opacity: 0.5; }
 
         footer { text-align: center; padding: 20px; opacity: 0.3; font-size: 12px; }
 
@@ -152,6 +156,12 @@
             </div>
         </div>
 
+        <input type="text" id="input-notes" placeholder="Usine" value="Usine"
+            style="width:100%; height:35px; box-sizing:border-box; background:var(--card-ponto);
+            border:none; border-radius:12px; padding:0 15px; font-size:11px; font-weight:800;
+            color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;
+            font-family:inherit; margin-bottom:var(--gap-main);">
+
         <div class="conge-row">
             <button id="btn-main-conge" class="btn-small" onclick="toggleTipo('CONGE', 'btn-main-conge')">congé</button>
             <div class="conge-hours" id="conge-hours-main">
@@ -163,6 +173,8 @@
             </div>
             <button id="btn-main-vacances" class="btn-small" onclick="toggleTipo('VACANCES', 'btn-main-vacances')">vacances</button>
         </div>
+
+        <input type="text" id="input-notes" class="notes-input" placeholder="USINE" maxlength="80">
 
         <div class="grid-action">
             <button class="btn-foto" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-camera"></i></button>
@@ -194,6 +206,12 @@
                     <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">DATE</label>
                     <input type="date" id="m-data" class="time-input" style="background: var(--card-ponto); border-radius: 12px; height: 35px; box-sizing: border-box; font-size: 14px;"></div>
                     
+                    <input type="text" id="m-notes" placeholder="Usine" value="Usine"
+                        style="width:100%; height:35px; box-sizing:border-box; background:var(--card-ponto);
+                        border:none; border-radius:12px; padding:0 15px; font-size:11px; font-weight:800;
+                        color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;
+                        font-family:inherit;">
+
                     <div class="conge-row" style="margin-bottom:0;">
                         <button id="btn-m-conge" class="btn-small" onclick="toggleTipoManual('CONGE', 'btn-m-conge')">congé</button>
                         <div class="conge-hours" id="conge-hours-manual">
@@ -206,12 +224,16 @@
                         <button id="btn-m-vacances" class="btn-small" onclick="toggleTipoManual('VACANCES', 'btn-m-vacances')">vacances</button>
                     </div>
 
+                    <input type="text" id="m-notes" class="notes-input" placeholder="USINE" maxlength="80" style="margin-bottom:0;">
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">ENTRÉE</label>
                         <input type="time" id="m-ent" class="time-input" value="07:00" style="background: var(--card-ponto); border-radius: 12px; height: 35px; box-sizing: border-box;"></div>
                         <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">SORTIE</label>
                         <input type="time" id="m-sai" class="time-input" value="00:00" style="background: var(--card-ponto); border-radius: 12px; height: 35px; box-sizing: border-box;"></div>
                     </div>
+                    <input type="text" id="m-input-notes" class="notes-input" placeholder="USINE" maxlength="80" style="margin-bottom: 0;">
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="btn-card toggle active manual-btn-toggle" id="m-card-pausa" onclick="toggleSimpleManual('m-check-pausa', 'm-card-pausa')">
                             <i class="fa-solid fa-circle-pause"></i>
@@ -245,7 +267,7 @@
 
 <script>
     // ─── CONFIG ───────────────────────────────────────────────────────────────
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxr2SZU1QRX5tzJ-pRL1Jt1FXAg0OCnfOKPxPjZaNojrH1LXK1mDkfntufEYIvcxU4z/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeUbkiuTH3aLu7YG2FmBo22-StfoH23nZ1JY-0wNvlCDIXCbM1jNlB9_rVuC1FuT51/exec";
 
     // ─── NAMED CONSTANTS (mirrors Apps Script) ────────────────────────────────
     const BASE_HOURS       = 174;
@@ -550,6 +572,7 @@
             almocoDuracao: descPausa + descAlmoco,
             horasConge:   congeHoursMain,
             subAlmoco:    document.getElementById('check-almoco').checked ? 1 : 0,
+            notes:        document.getElementById('input-notes').value.trim() || 'Usine',
             foto:         fotoBase64Main
         };
         try {
@@ -585,6 +608,7 @@
             almocoDuracao: descPausa + descAlmoco,
             horasConge:    congeHoursManual,
             subAlmoco:     document.getElementById('m-check-almoco').checked ? 1 : 0,
+            notes:         document.getElementById('m-notes').value.trim() || 'Usine',
             foto:          fotoBase64Manual
         };
         try {
