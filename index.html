@@ -81,6 +81,13 @@
 
         .manual-btn-toggle { height: 50px !important; border-radius: 15px !important; }
 
+        .conge-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; margin-bottom: var(--gap-main); align-items: center; }
+        .conge-hours { display: none; flex-direction: column; align-items: center; justify-content: center; background: var(--icon-active); border-radius: 12px; height: 35px; padding: 0 10px; gap: 2px; }
+        .conge-hours.visible { display: flex; }
+        .conge-hours label { font-size: 8px; font-weight: 900; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; line-height: 1; }
+        .conge-hours select { background: transparent; border: none; color: #fff; font-weight: 900; font-size: 13px; text-align: center; appearance: none; cursor: pointer; outline: none; padding: 0; width: 40px; }
+        .conge-hours select option { background: var(--icon-active); color: #fff; }
+
         .month-btn { font-size: 10px; }
         .month-btn.active-month { background: var(--icon-active); color: #fff; }
 
@@ -142,8 +149,15 @@
             </div>
         </div>
 
-        <div class="grid-small">
+        <div class="conge-row">
             <button id="btn-main-conge" class="btn-small" onclick="toggleTipo('CONGE', 'btn-main-conge')">congé</button>
+            <div class="conge-hours" id="conge-hours-main">
+                <label>heures</label>
+                <select id="conge-h-main" onchange="congeHoursMain=parseInt(this.value);calc()">
+                    <option>1</option><option>2</option><option>3</option><option>4</option>
+                    <option>5</option><option>6</option><option>7</option><option value="8" selected>8</option>
+                </select>
+            </div>
             <button id="btn-main-vacances" class="btn-small" onclick="toggleTipo('VACANCES', 'btn-main-vacances')">vacances</button>
         </div>
 
@@ -177,8 +191,15 @@
                     <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">DATE</label>
                     <input type="date" id="m-data" class="time-input" style="background: var(--card-ponto); border-radius: 12px; height: 35px; box-sizing: border-box; font-size: 14px;"></div>
                     
-                    <div class="grid-small">
+                    <div class="conge-row" style="margin-bottom:0;">
                         <button id="btn-m-conge" class="btn-small" onclick="toggleTipoManual('CONGE', 'btn-m-conge')">congé</button>
+                        <div class="conge-hours" id="conge-hours-manual">
+                            <label>heures</label>
+                            <select id="conge-h-manual" onchange="congeHoursManual=parseInt(this.value)">
+                                <option>1</option><option>2</option><option>3</option><option>4</option>
+                                <option>5</option><option>6</option><option>7</option><option value="8" selected>8</option>
+                            </select>
+                        </div>
                         <button id="btn-m-vacances" class="btn-small" onclick="toggleTipoManual('VACANCES', 'btn-m-vacances')">vacances</button>
                     </div>
 
@@ -221,7 +242,7 @@
 
 <script>
     // ─── CONFIG ───────────────────────────────────────────────────────────────
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoG-0gH9NN0G4_BN4tEk753nz4Z_XyhtAy6Qeso119b_tyCPaIAF11gJLuz3DQ4PhI/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxr2SZU1QRX5tzJ-pRL1Jt1FXAg0OCnfOKPxPjZaNojrH1LXK1mDkfntufEYIvcxU4z/exec";
 
     // ─── NAMED CONSTANTS (mirrors Apps Script) ────────────────────────────────
     const BASE_HOURS       = 174;
@@ -232,15 +253,18 @@
     const VACATION_DAY_H   = 8;
 
     // ─── STATE ────────────────────────────────────────────────────────────────
-    let acumuladoMes            = 0;
-    let totalAlmocos            = 0;
-    let mealDuration            = 1.5;
-    let fotoBase64Main          = "";   // FIX: separate variable per form
-    let fotoBase64Manual        = "";   // FIX: separate variable per form
+    let acumuladoMes             = 0;
+    let totalAlmocos             = 0;
+    let mealDuration             = 1.5;
+    let fotoBase64Main           = "";
+    let fotoBase64Manual         = "";
     let vacancesUtilizadasTotais = 0;
-    let currentTipo             = "NORMAL";
-    let currentTipoManual       = "NORMAL";
-    let USER_TOKEN              = localStorage.getItem('muller_ponto_token');
+    let extraPermanente          = 0;  // running extra-hours balance from server
+    let congeHoursMain           = 8;  // hours selected for main congé
+    let congeHoursManual         = 8;  // hours selected for manual congé
+    let currentTipo              = "NORMAL";
+    let currentTipoManual        = "NORMAL";
+    let USER_TOKEN               = localStorage.getItem('muller_ponto_token');
 
     // ─── TOAST ────────────────────────────────────────────────────────────────
     let toastTimer;
@@ -280,6 +304,7 @@
             acumuladoMes             = parseFloat(data.acumulado || 0);
             totalAlmocos             = parseInt(data.almocos || 0);
             vacancesUtilizadasTotais = parseFloat(data.vacancesUsadas || 0);
+            extraPermanente          = parseFloat(data.extraPermanente || 0);
             statusEl.innerText       = "SYNCHRONISÉ";
             statusEl.style.color     = "var(--color-done)";
             calc();
@@ -305,6 +330,7 @@
             currentTipo = tipo;
             btn.classList.add('active', 'toggle');
         }
+        document.getElementById('conge-hours-main').classList.toggle('visible', currentTipo === 'CONGE');
         calc();
     }
 
@@ -319,6 +345,7 @@
             currentTipoManual = tipo;
             btn.classList.add('active', 'toggle');
         }
+        document.getElementById('conge-hours-manual').classList.toggle('visible', currentTipoManual === 'CONGE');
         calc();
     }
 
@@ -384,16 +411,22 @@
         document.getElementById('bar-base').style.backgroundColor = totalGeral >= BASE_HOURS ? "var(--color-done)" : "var(--color-pending)";
         document.getElementById('txt-base').innerText             = formatTime(base);
 
-        // Supplementary bar (15h window)
+        // Supplementary bar (15h window within current month)
         let extra = totalGeral > BASE_HOURS ? Math.min(SUPPLEMENTARY_H, totalGeral - BASE_HOURS) : 0;
         document.getElementById('bar-15').style.width           = (extra / SUPPLEMENTARY_H) * 100 + "%";
         document.getElementById('bar-15').style.backgroundColor = totalGeral >= TOTAL_REQUIRED_H ? "var(--color-done)" : "var(--color-pending)";
         document.getElementById('txt-15').innerText             = formatTime(extra);
 
-        // Real extra (beyond 189h)
-        let extraReal = totalGeral > TOTAL_REQUIRED_H ? totalGeral - TOTAL_REQUIRED_H : 0;
-        document.getElementById('txt-extra-real').innerText         = formatTime(extraReal);
-        document.getElementById('bar-extra-real').style.width       = Math.min(100, (extraReal / 10) * 100) + "%";
+        // Permanent extra balance: server value + today's unsaved preview
+        // If CONGE today: subtract the selected congé hours from the balance
+        let extraPreviewDelta = 0;
+        if (currentTipo === "NORMAL" && hoje > 0) extraPreviewDelta = hoje;
+        if (currentTipo === "CONGE")  extraPreviewDelta = -congeHoursMain;
+        let extraTotal = extraPermanente + extraPreviewDelta;
+        const extraAbs = Math.abs(extraTotal);
+        document.getElementById('txt-extra-real').innerText         = (extraTotal < 0 ? "-" : "+") + formatTime(extraAbs);
+        document.getElementById('bar-extra-real').style.width       = Math.min(100, (extraAbs / 20) * 100) + "%";
+        document.getElementById('bar-extra-real').style.backgroundColor = extraTotal < 0 ? "var(--color-pending)" : "var(--color-done)";
 
         // Dinner bar
         let isTodayAlmoco = (document.getElementById('check-almoco').checked && currentTipo === "NORMAL") ? 1 : 0;
@@ -501,6 +534,7 @@
             entrada:      toCent(document.getElementById('input-entrada').value),
             saida:        toCent(document.getElementById('input-saida').value),
             almocoDuracao: descPausa + descAlmoco,
+            horasConge:   congeHoursMain,
             subAlmoco:    document.getElementById('check-almoco').checked ? 1 : 0,
             foto:         fotoBase64Main
         };
@@ -536,6 +570,7 @@
             entrada:       toCent(document.getElementById('m-ent').value),
             saida:         toCent(document.getElementById('m-sai').value),
             almocoDuracao: descPausa + descAlmoco,
+            horasConge:    congeHoursManual,
             subAlmoco:     document.getElementById('m-check-almoco').checked ? 1 : 0,
             foto:          fotoBase64Manual
         };
