@@ -671,7 +671,7 @@
             const alreadyDone = logs.some(l => l.data === todayFmt);
             if (alreadyDone) {
                 const banner = document.getElementById('today-banner');
-                banner.textContent = '✓ Pointage déjà envoyé aujourd'hui';
+                banner.textContent = "✓ Pointage déjà envoyé aujourd'hui";
                 banner.style.display = 'block';
                 // Disable submit button as visual cue (not a hard lock)
                 document.getElementById('main-btn').style.opacity = '0.4';
