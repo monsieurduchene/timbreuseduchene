@@ -126,14 +126,18 @@
             </div>
         </header>
 
+        <div id="today-banner" style="display:none; background:var(--color-done); color:#fff; border-radius:12px; padding:10px 15px; margin-bottom:var(--gap-main); text-align:center; font-size:11px; font-weight:900; letter-spacing:1px; text-transform:uppercase;"></div>
+
         <div class="grid-2x2">
             <div class="btn-card time">
                 <i class="fa-solid fa-right-to-bracket"></i>
                 <input type="time" id="input-entrada" class="time-input" onchange="manualSave('ent')">
+                <button onclick="setNow('input-entrada','ent')" style="margin-top:5px;border:none;background:var(--card-toggle);border-radius:8px;font-size:9px;font-weight:900;color:var(--text-secondary);padding:3px 10px;cursor:pointer;letter-spacing:1px;">NOW</button>
             </div>
             <div class="btn-card time">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <input type="time" id="input-saida" class="time-input" value="00:00" onchange="manualSave('sai')">
+                <button onclick="setNow('input-saida','sai')" style="margin-top:5px;border:none;background:var(--card-toggle);border-radius:8px;font-size:9px;font-weight:900;color:var(--text-secondary);padding:3px 10px;cursor:pointer;letter-spacing:1px;">NOW</button>
             </div>
         </div>
 
@@ -156,11 +160,6 @@
             </div>
         </div>
 
-        <input type="text" id="input-notes" placeholder="Usine" value="Usine"
-            style="width:100%; height:35px; box-sizing:border-box; background:var(--card-ponto);
-            border:none; border-radius:12px; padding:0 15px; font-size:11px; font-weight:800;
-            color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;
-            font-family:inherit; margin-bottom:var(--gap-main);">
 
         <div class="conge-row">
             <button id="btn-main-conge" class="btn-small" onclick="toggleTipo('CONGE', 'btn-main-conge')">congé</button>
@@ -174,7 +173,7 @@
             <button id="btn-main-vacances" class="btn-small" onclick="toggleTipo('VACANCES', 'btn-main-vacances')">vacances</button>
         </div>
 
-        <input type="text" id="input-notes" class="notes-input" placeholder="USINE" maxlength="80">
+        <input type="text" id="input-notes" class="notes-input" placeholder="USINE" maxlength="80" value="USINE" list="notes-suggestions" autocomplete="off">
 
         <div class="grid-action">
             <button class="btn-foto" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-camera"></i></button>
@@ -195,6 +194,16 @@
             <div class="bar-bg"><div id="bar-dinner" class="bar-fill" style="background-color: var(--color-repas);"></div></div>
             <div class="progress-label"><span>VACANCES</span><span id="txt-vacances">160h</span></div>
             <div class="bar-bg"><div id="bar-vacances" class="bar-fill"></div></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:5px;">
+                <div style="background:var(--bar-bg); border-radius:12px; padding:10px; text-align:center;">
+                    <div style="font-size:9px; font-weight:900; color:var(--text-secondary); letter-spacing:1px; text-transform:uppercase; margin-bottom:3px;">Jours restants</div>
+                    <div id="txt-jours-rest" style="font-size:18px; font-weight:900; color:var(--text);">-</div>
+                </div>
+                <div style="background:var(--bar-bg); border-radius:12px; padding:10px; text-align:center;">
+                    <div style="font-size:9px; font-weight:900; color:var(--text-secondary); letter-spacing:1px; text-transform:uppercase; margin-bottom:3px;">Moy. nécessaire</div>
+                    <div id="txt-avg-needed" style="font-size:18px; font-weight:900; color:var(--text);">-</div>
+                </div>
+            </div>
         </div>
 
         <div class="manual-section" style="margin-bottom: var(--gap-main);">
@@ -206,11 +215,6 @@
                     <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">DATE</label>
                     <input type="date" id="m-data" class="time-input" style="background: var(--card-ponto); border-radius: 12px; height: 35px; box-sizing: border-box; font-size: 14px;"></div>
                     
-                    <input type="text" id="m-notes" placeholder="Usine" value="Usine"
-                        style="width:100%; height:35px; box-sizing:border-box; background:var(--card-ponto);
-                        border:none; border-radius:12px; padding:0 15px; font-size:11px; font-weight:800;
-                        color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;
-                        font-family:inherit;">
 
                     <div class="conge-row" style="margin-bottom:0;">
                         <button id="btn-m-conge" class="btn-small" onclick="toggleTipoManual('CONGE', 'btn-m-conge')">congé</button>
@@ -224,7 +228,6 @@
                         <button id="btn-m-vacances" class="btn-small" onclick="toggleTipoManual('VACANCES', 'btn-m-vacances')">vacances</button>
                     </div>
 
-                    <input type="text" id="m-notes" class="notes-input" placeholder="USINE" maxlength="80" style="margin-bottom:0;">
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">ENTRÉE</label>
@@ -232,7 +235,7 @@
                         <div style="display: flex; flex-direction: column;"><label style="font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px;">SORTIE</label>
                         <input type="time" id="m-sai" class="time-input" value="00:00" style="background: var(--card-ponto); border-radius: 12px; height: 35px; box-sizing: border-box;"></div>
                     </div>
-                    <input type="text" id="m-input-notes" class="notes-input" placeholder="USINE" maxlength="80" style="margin-bottom: 0;">
+                    <input type="text" id="m-notes" class="notes-input" placeholder="USINE" maxlength="80" value="USINE" list="notes-suggestions" autocomplete="off" style="margin-bottom: 0;">
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="btn-card toggle active manual-btn-toggle" id="m-card-pausa" onclick="toggleSimpleManual('m-check-pausa', 'm-card-pausa')">
@@ -333,11 +336,15 @@
             statusEl.innerText       = "SYNCHRONISÉ";
             statusEl.style.color     = "var(--color-done)";
             calc();
+            calcWorkingDays();
             consultarHistorico();
+            checkTodaySubmitted();
+            loadNotesSuggestions();
         } catch(e) {
             statusEl.innerText   = "HORS LIGNE";
             statusEl.style.color = "var(--color-pending)";
             calc();
+            loadNotesSuggestions();
         }
     }
 
@@ -519,11 +526,7 @@
             const data = await res.json();
             // FIX: guard against unexpected non-array response (e.g. error object or stats object)
             const logs = Array.isArray(data) ? data : [];
-            let listaHTML = logs.map(log => {
-                const totalF = log.tipo !== "NORMAL" ? log.tipo : formatTime(parseFloat(log.total));
-                return `<div class="history-item"><span>${log.data}</span><span class="h-total">${totalF}</span><span class="h-extra">${log.extra > 0 && log.tipo === 'NORMAL' ? '+' + formatTime(parseFloat(log.extra)) : '-'}</span></div>`;
-            }).join('');
-            lista.innerHTML = logs.length ? listaHTML : '<div style="text-align:center; font-size:11px; padding:20px;">AUCUNE DONNÉE</div>';
+            lista.innerHTML = buildHistoryWithWeeks(logs);
         } catch(e) { lista.innerHTML = '<div style="text-align:center; font-size:11px; padding:20px; color:var(--color-pending);">Erreur de chargement</div>'; }
     }
 
@@ -577,6 +580,7 @@
         };
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            saveNoteToHistory(payload.notes);
             showToast("Envoyé avec succès !", 'success');
             setTimeout(() => location.reload(), 1500);
         } catch(e) {
@@ -613,6 +617,7 @@
         };
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            saveNoteToHistory(payload.notes);
             showToast("Envoyé avec succès !", 'success');
             setTimeout(() => location.reload(), 1500);
         } catch(e) {
@@ -622,7 +627,144 @@
         }
     }
 
+
+    // ─── NOTES AUTOCOMPLETE ───────────────────────────────────────────────────
+    function loadNotesSuggestions() {
+        const saved = JSON.parse(localStorage.getItem('notes_history') || '[]');
+        const dl = document.getElementById('notes-suggestions');
+        dl.innerHTML = saved.map(v => `<option value="${v}">`).join('');
+    }
+
+    function saveNoteToHistory(val) {
+        if (!val || val.trim() === '') return;
+        const key = val.trim().toUpperCase();
+        let saved = JSON.parse(localStorage.getItem('notes_history') || '[]');
+        saved = [key, ...saved.filter(v => v !== key)].slice(0, 10);
+        localStorage.setItem('notes_history', JSON.stringify(saved));
+        loadNotesSuggestions();
+    }
+
+    // ─── NOW BUTTON ───────────────────────────────────────────────────────────
+    function setNow(inputId, saveKey) {
+        const now = new Date();
+        const hh  = now.getHours().toString().padStart(2, '0');
+        const mm  = now.getMinutes().toString().padStart(2, '0');
+        const val = hh + ':' + mm;
+        document.getElementById(inputId).value = val;
+        localStorage.setItem('p_' + saveKey, val);
+        calc();
+    }
+
+    // ─── TODAY SUBMITTED CHECK ────────────────────────────────────────────────
+    async function checkTodaySubmitted() {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const mes = (new Date().getMonth() + 1).toString().padStart(2, '0');
+        try {
+            const res  = await fetch(`${SCRIPT_URL}?action=getHistory&mes=${mes}&token=${USER_TOKEN}`, { mode: 'cors' });
+            const data = await res.json();
+            const logs = Array.isArray(data) ? data : [];
+            // Date from sheet is dd.MM.yyyy — convert today to same format for comparison
+            const d = new Date();
+            const todayFmt = d.getDate().toString().padStart(2,'0') + '.' +
+                             (d.getMonth()+1).toString().padStart(2,'0') + '.' +
+                             d.getFullYear();
+            const alreadyDone = logs.some(l => l.data === todayFmt);
+            if (alreadyDone) {
+                const banner = document.getElementById('today-banner');
+                banner.textContent = '✓ Pointage déjà envoyé aujourd'hui';
+                banner.style.display = 'block';
+                // Disable submit button as visual cue (not a hard lock)
+                document.getElementById('main-btn').style.opacity = '0.4';
+            }
+        } catch(e) { /* silent — offline or error */ }
+    }
+
+    // ─── WORKING DAYS COUNTER ─────────────────────────────────────────────────
+    function calcWorkingDays() {
+        const now        = new Date();
+        const year       = now.getFullYear();
+        const month      = now.getMonth();
+        const today      = now.getDate();
+        const lastDay    = new Date(year, month + 1, 0).getDate();
+
+        // Count remaining working days from tomorrow to end of month
+        let remaining = 0;
+        for (let d = today + 1; d <= lastDay; d++) {
+            const day = new Date(year, month, d).getDay();
+            if (day !== 0 && day !== 6) remaining++;
+        }
+
+        // Hours still needed to hit 174h base
+        const hoursNeeded = Math.max(0, BASE_HOURS - acumuladoMes);
+        const avgNeeded   = remaining > 0 ? hoursNeeded / remaining : 0;
+
+        document.getElementById('txt-jours-rest').textContent = remaining;
+        document.getElementById('txt-avg-needed').textContent =
+            remaining > 0 ? formatTime(avgNeeded) : '—';
+
+        // Colour-code the average: green if ≤8h, orange if >8h, red if >10h
+        const avgEl = document.getElementById('txt-avg-needed');
+        avgEl.style.color = avgNeeded <= 8 ? 'var(--color-done)'
+                          : avgNeeded <= 10 ? '#f9b560'
+                          : 'var(--color-pending)';
+    }
+
+    // ─── WEEKLY SUBTOTALS IN HISTORY ─────────────────────────────────────────
+    function getWeekNumber(dateStr) {
+        // dateStr format: dd.MM.yyyy
+        const parts = dateStr.split('.');
+        if (parts.length < 3) return 0;
+        const d = new Date(parts[2], parts[1] - 1, parts[0]);
+        const startOfYear = new Date(d.getFullYear(), 0, 1);
+        return Math.ceil(((d - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+    }
+
+    function buildHistoryWithWeeks(logs) {
+        if (!logs.length) return '<div style="text-align:center; font-size:11px; padding:20px;">AUCUNE DONNÉE</div>';
+        let html = '';
+        let currentWeek = null;
+        let weekTotal   = 0;
+        let weekLabel   = 0;
+
+        logs.forEach((log, idx) => {
+            const week  = getWeekNumber(log.data);
+            const total = parseFloat(log.total) || 0;
+
+            if (currentWeek !== null && week !== currentWeek) {
+                // Flush previous week subtotal
+                html += `<div style="display:grid; grid-template-columns:2fr 1fr 1fr; background:var(--card-toggle); padding:6px 15px; border-radius:8px; font-size:10px; font-weight:900; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">
+                    <span>Semaine ${weekLabel}</span>
+                    <span style="text-align:center">${formatTime(weekTotal)}</span>
+                    <span style="text-align:right; color:${weekTotal >= 40 ? 'var(--color-done)' : 'var(--text-secondary)'}">${weekTotal >= 40 ? '+' + formatTime(weekTotal - 40) : formatTime(weekTotal - 40)}</span>
+                </div>`;
+                weekTotal = 0;
+            }
+
+            currentWeek = week;
+            weekLabel   = week;
+            if (log.tipo === 'NORMAL') weekTotal += total;
+
+            const totalF = log.tipo !== 'NORMAL' ? log.tipo : formatTime(total);
+            html += `<div class="history-item">
+                <span>${log.data}</span>
+                <span class="h-total">${totalF}</span>
+                <span class="h-extra">${log.extra > 0 && log.tipo === 'NORMAL' ? '+' + formatTime(parseFloat(log.extra)) : '-'}</span>
+            </div>`;
+        });
+
+        // Flush last week
+        if (currentWeek !== null) {
+            html += `<div style="display:grid; grid-template-columns:2fr 1fr 1fr; background:var(--card-toggle); padding:6px 15px; border-radius:8px; font-size:10px; font-weight:900; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">
+                <span>Semaine ${weekLabel}</span>
+                <span style="text-align:center">${formatTime(weekTotal)}</span>
+                <span style="text-align:right; color:${weekTotal >= 40 ? 'var(--color-done)' : 'var(--text-secondary)'}">${weekTotal >= 40 ? '+' + formatTime(weekTotal - 40) : formatTime(weekTotal - 40)}</span>
+            </div>`;
+        }
+        return html;
+    }
+
     window.onload = carregar;
 </script>
+    <datalist id="notes-suggestions"></datalist>
 </body>
 </html>
